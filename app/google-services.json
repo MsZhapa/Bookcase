@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672042712672",
+    "project_id": "bookcase-c2fa6",
+    "storage_bucket": "bookcase-c2fa6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672042712672:android:2325c44078c6654ffdcd05",
+        "android_client_info": {
+          "package_name": "com.example.bookcase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCA3XDE6u4-BJueNYkN9zgskVIFTTbf4Js"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

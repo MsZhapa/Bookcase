@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="2"
+    android:rowCount="4"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- Cube 1 -->
+    <Button
+        android:id="@+id/cube1Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 1"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 2 -->
+    <Button
+        android:id="@+id/cube2Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 2"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 3 -->
+    <Button
+        android:id="@+id/cube3Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 3"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 4 -->
+    <Button
+        android:id="@+id/cube4Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 4"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 5 -->
+    <Button
+        android:id="@+id/cube5Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 5"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 6 -->
+    <Button
+        android:id="@+id/cube6Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 6"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 7 -->
+    <Button
+        android:id="@+id/cube7Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 7"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+
+    <!-- Cube 8 -->
+    <Button
+        android:id="@+id/cube8Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:background="@drawable/cube_background"
+        android:text="Cube 8"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"/>
+</GridLayout>
