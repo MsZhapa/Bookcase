@@ -48,17 +48,12 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                     .into(holder.bookImageView);
         }
 
-        // Open BookDetailActivity on click
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, BookDetailActivity.class);
-            intent.putExtra("id", book.getId());
-            intent.putExtra("title", book.getTitle());
-            intent.putExtra("author", book.getAuthor());
-            intent.putExtra("description", book.getDescription());
-            intent.putExtra("imageUrl", book.getImageUrl());
-            intent.putExtra("location", book.getLocation());
+            intent.putExtra("bookId", book.getId()); // ✅ Pass correct book ID
             context.startActivity(intent);
         });
+
     }
 
     @Override

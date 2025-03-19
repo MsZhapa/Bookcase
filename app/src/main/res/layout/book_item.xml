@@ -2,37 +2,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@drawable/book_item_background">
 
+    <!-- Book Cover Image -->
     <ImageView
         android:id="@+id/bookImageView"
         android:layout_width="80dp"
         android:layout_height="100dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/books1" />
+        android:scaleType="fitCenter"
+        android:src="@drawable/books1"
+        android:layout_marginEnd="12dp"/>
 
+    <!-- Book Info -->
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingLeft="8dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Book Title"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textSize="16sp" />
+            android:textColor="@android:color/black"
+            android:maxLines="2"
+            android:ellipsize="end"/>
 
         <TextView
             android:id="@+id/authorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="by Author"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textColor="@android:color/darker_gray"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textStyle="italic"
+            android:maxLines="1"/>
+
+        <!-- Read Status -->
+        <TextView
+            android:id="@+id/readStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginTop="4dp"/>
+
+        <!-- Progress Bar (Visible if book is not read) -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:visibility="gone"
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 </LinearLayout>

@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 📌 Include Toolbar -->
+    <include layout="@layout/toolbar_layout"/>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:padding="20dp">
 
     <LinearLayout
@@ -13,181 +20,102 @@
         android:padding="10dp">
 
         <!-- 📚 Book Title -->
-        <TextView
-            android:text="Book Title"
-            android:textStyle="bold"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:layout_marginBottom="4dp"/>
         <EditText
             android:id="@+id/editTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter book title"
-            android:textColor="@color/black"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:textSize="16sp"/>
+            android:hint="Enter book title"/>
 
         <!-- ✍️ Author -->
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/black"
-            android:text="Author"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="4dp"/>
         <EditText
             android:id="@+id/editAuthor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter author name"
-            android:textColor="@color/black"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:textSize="16sp"/>
+            android:hint="Enter author name"/>
 
         <!-- 📖 Description -->
-        <TextView
-            android:text="Description"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="4dp"/>
         <EditText
             android:id="@+id/editDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter book description"
-            android:textColor="@color/black"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:textSize="16sp"
             android:minLines="3"
-            android:gravity="top"
-            android:scrollbars="vertical"/>
-
-        <!-- 🖼️ Book Cover Image URL -->
-        <TextView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textColor="@color/black"
-            android:text="Book Cover URL"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="4dp"/>
-
-        <ImageView
-            android:id="@+id/bookCoverImage"
-            android:layout_width="150dp"
-            android:layout_height="200dp"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/books1"/>
-        <!-- 🔼 Upload Image Button -->
-        <Button
-            android:id="@+id/uploadImageButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Upload Book Cover"
-            android:background="@drawable/rounded_button"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"/>
-        <EditText
-            android:id="@+id/editImageUrl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:hint="Enter image URL"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:textSize="16sp"/>
-
+            android:gravity="top"/>
 
         <!-- 📦 Cube Selection -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:text="Location"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="4dp"/>
+            android:text="Select Cube" android:layout_marginTop="10dp"/>
         <Spinner
             android:id="@+id/cubeSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/spinner_background"
-            android:padding="8dp"
-            android:layout_marginBottom="12dp"/>
+            android:layout_height="wrap_content"/>
 
-
-
-        <!-- ✅ Read Status Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reading Status"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="6dp"/>
-
-        <!-- 📚 Read Checkbox (with better spacing & color) -->
+        <!-- 📚 Read Status -->
         <CheckBox
             android:id="@+id/editReadCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mark as Read"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="12dp"
-            android:padding="10dp"
-            android:buttonTint="@color/black" />  <!-- Change color of checkbox -->
+            android:text="Mark as Read"/>
 
-
-        <!-- 📊 Progress Bar (Shown only if book is not fully read) -->
+        <!-- 📊 Progress Bar (Only visible if book is not fully read) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reading Progress (%)" android:layout_marginTop="10dp"/>
+        <!-- Progress Bar with Percentage Indicator -->
         <LinearLayout
             android:id="@+id/progressLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:paddingTop="12dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp">
 
-            <TextView
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:textColor="@color/black"
-                android:text="Reading Progress (%)"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_marginBottom="4dp"/>
             <SeekBar
                 android:id="@+id/editProgressBar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:max="100"
                 android:progress="0"/>
+
+            <!-- ✅ Progress Percentage Display -->
+            <TextView
+                android:id="@+id/editProgressPercentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:layout_marginStart="8dp"/>
         </LinearLayout>
+
+
+        <!-- 🖼️ Book Cover Image -->
+        <ImageView
+            android:id="@+id/bookCoverImage"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/books1"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="10dp"/>
+
+        <!-- 📤 Upload New Cover -->
+        <Button
+            android:id="@+id/uploadImageButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Upload New Cover"/>
 
         <!-- 💾 Save Button -->
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/rounded_button"
             android:text="Save Changes"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"/>
+            android:layout_marginTop="10dp"/>
     </LinearLayout>
 </ScrollView>
+</LinearLayout>

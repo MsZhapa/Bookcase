@@ -2,11 +2,13 @@ package com.example.bookcase;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,144 +24,154 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 public class BookDetailActivity extends AppCompatActivity {
 
-    private TextView titleTextView, authorTextView, locationTextView, descriptionTextView;
+    private TextView titleTextView, authorTextView, descriptionTextView, locationTextView, readStatusTextView;
     private ImageView bookImageView;
-    private CheckBox readCheckBox;
+
+    private TextView progressPercentage;
     private ProgressBar progressBar;
-    private Button moveButton, editBookButton, deleteBookButton, setReminderButton;
-    private String bookId;
+    private LinearLayout progressLayout;
+    private CheckBox readCheckBox;
+    private Button moveButton, editBookButton, deleteBookButton;
     private FirebaseFirestore firestore;
-    private int currentCube, progress;
-    private boolean isRead;
+    private String bookId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
 
-        firestore = FirebaseFirestore.getInstance();
+        // 🏷️ Set Screen Title
+        TextView screenTitle = findViewById(R.id.screenTitle);
+        screenTitle.setText("Book");
 
+        // 🔙 Handle Back Button Click
+        ImageView backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> onBackPressed());
+
+        // Initialize views
         titleTextView = findViewById(R.id.titleTextView);
         authorTextView = findViewById(R.id.authorTextView);
-        locationTextView = findViewById(R.id.locationTextView);
         descriptionTextView = findViewById(R.id.descriptionTextView);
+        locationTextView = findViewById(R.id.locationTextView);
+        readStatusTextView = findViewById(R.id.readStatusTextView);
         bookImageView = findViewById(R.id.bookImageView);
         readCheckBox = findViewById(R.id.readCheckBox);
         progressBar = findViewById(R.id.progressBar);
+        progressPercentage = findViewById(R.id.progressPercentage); // ✅ Initialize TextView
+        progressLayout = findViewById(R.id.progressLayout); // ✅ Initialize Layout Container
         moveButton = findViewById(R.id.moveButton);
         editBookButton = findViewById(R.id.editBookButton);
         deleteBookButton = findViewById(R.id.deleteBookButton);
-        setReminderButton = findViewById(R.id.setReminderButton);
 
-        bookId = getIntent().getStringExtra("id");
-        if (bookId != null) {
-            listenForBookUpdates(bookId);
+        firestore = FirebaseFirestore.getInstance();
+
+        // Get book ID from intent
+        bookId = getIntent().getStringExtra("bookId");
+        if (bookId == null) {
+            Toast.makeText(this, "Error: Book ID not found", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        moveButton.setOnClickListener(v -> showMoveBookDialog());
+        // Fetch book details
+        loadBookDetails();
+
+        // Edit Book Button
         editBookButton.setOnClickListener(v -> {
             Intent intent = new Intent(BookDetailActivity.this, EditBookActivity.class);
-            intent.putExtra("id", bookId);
+            intent.putExtra("bookId", bookId);
             startActivity(intent);
         });
-        deleteBookButton.setOnClickListener(v -> showDeleteConfirmationDialog());
-        setReminderButton.setOnClickListener(v -> setReadingReminder());
+
+        // Handle Delete Book Button Click
+        if (deleteBookButton != null) {
+            deleteBookButton.setOnClickListener(v -> showDeleteConfirmationDialog());
+        }
+
+        // Move Book Button
+        moveButton.setOnClickListener(v -> showMoveBookDialog());
     }
 
-    private void listenForBookUpdates(String bookId) {
-        DocumentReference docRef = firestore.collection("books").document(bookId);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.e("Firestore", "Error fetching book details", e);
-                    return;
-                }
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d("Firestore", "Book Data: " + snapshot.getData()); // 🔍 DEBUG
+    private void loadBookDetails() {
+        firestore.collection("books").document(bookId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Book book = documentSnapshot.toObject(Book.class);
+                        if (book != null) {
+                            titleTextView.setText(book.getTitle());
+                            authorTextView.setText("by " + book.getAuthor());
+                            locationTextView.setText("Current Cube: " + book.getLocation());
+                            descriptionTextView.setText(book.getDescription());
 
-                    Book book = snapshot.toObject(Book.class);
-                    if (book != null) {
-                        titleTextView.setText(book.getTitle());
-                        authorTextView.setText("by " + book.getAuthor());
-                        locationTextView.setText("Current Cube: " + book.getLocation());
-                        descriptionTextView.setText(book.getDescription());
-                        readCheckBox.setChecked(book.isRead());
+                            boolean isRead = Boolean.TRUE.equals(book.isRead());
+                            readCheckBox.setChecked(isRead);
 
-                        progress = book.getProgress();
-                        currentCube = book.getLocation();
-                        isRead = book.isRead();
+                            int progress = book.getProgress();
+                            progressBar.setProgress(progress);
+                            progressPercentage.setText(progress + "%"); // ✅ Update progress text
 
-                        progressBar.setProgress(progress);
-                        progressBar.setVisibility(isRead ? View.GONE : View.VISIBLE);
+                            // ✅ Show or Hide ProgressBar and Indicator Based on Read Status
+                            if (isRead) {
+                                progressLayout.setVisibility(View.GONE);
+                            } else {
+                                progressLayout.setVisibility(View.VISIBLE);
+                            }
 
-                        // 🔍 Debug Image URL
-                        Log.d("Firestore", "Image URL: " + book.getImageUrl());
-
-                        // Fix for Image Not Loading
-                        if (book.getImageUrl() != null && !book.getImageUrl().isEmpty()) {
-                            Glide.with(BookDetailActivity.this)
-                                    .load(book.getImageUrl())
-                                    .placeholder(R.drawable.books1) // Default placeholder
-                                    .into(bookImageView);
-                        } else {
-                            bookImageView.setImageResource(R.drawable.books1);
+                            // ✅ Load book image if available
+                            if (book.getImageUrl() != null && !book.getImageUrl().isEmpty()) {
+                                Glide.with(this).load(book.getImageUrl()).into(bookImageView);
+                            }
                         }
                     }
-                } else {
-                    Log.e("Firestore", "Book document does not exist!");
-                }
-            }
-        });
+                })
+                .addOnFailureListener(e -> Toast.makeText(BookDetailActivity.this, "Error loading book", Toast.LENGTH_SHORT).show());
+    }
+
+    // 📌 Show Delete Confirmation Dialog
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Book")
+                .setMessage("Are you sure you want to delete this book?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteBook())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
 
+    // 📌 Delete book from Firestore
+    // 📌 Delete Book from Firestore
+    private void deleteBook() {
+        if (bookId != null) {
+            firestore.collection("books").document(bookId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(BookDetailActivity.this, "Book deleted", Toast.LENGTH_SHORT).show();
+                        finish(); // Close activity after deletion
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(BookDetailActivity.this, "Failed to delete book", Toast.LENGTH_SHORT).show());
+        } else {
+            Toast.makeText(this, "Error: Book ID not found!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 📌 Show Move Book Dialog
     private void showMoveBookDialog() {
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
 
-        new AlertDialog.Builder(this)
+        new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Move Book to:")
                 .setItems(cubeOptions, (dialog, which) -> {
                     int newCube = which + 1;
-                    if (newCube != currentCube) {
-                        moveBookToCube(bookId, newCube);
-                    } else {
-                        Toast.makeText(BookDetailActivity.this, "Book is already in Cube " + newCube, Toast.LENGTH_SHORT).show();
-                    }
+                    firestore.collection("books").document(bookId)
+                            .update("location", newCube)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(BookDetailActivity.this, "Book moved to Cube " + newCube, Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(BookDetailActivity.this, "Failed to move book", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private void moveBookToCube(String bookId, int newCube) {
-        firestore.collection("books").document(bookId)
-                .update("location", newCube)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(BookDetailActivity.this, "Book moved to Cube " + newCube, Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> Toast.makeText(BookDetailActivity.this, "Failed to move book", Toast.LENGTH_SHORT).show());
-    }
-
-    private void showDeleteConfirmationDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Book")
-                .setMessage("Are you sure you want to delete this book?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteBook(bookId))
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void deleteBook(String bookId) {
-        firestore.collection("books").document(bookId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(BookDetailActivity.this, "Book deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> Toast.makeText(BookDetailActivity.this, "Failed to delete book", Toast.LENGTH_SHORT).show());
-    }
-
-    private void setReadingReminder() {
-        Toast.makeText(this, "Reminder set!", Toast.LENGTH_SHORT).show();
     }
 }

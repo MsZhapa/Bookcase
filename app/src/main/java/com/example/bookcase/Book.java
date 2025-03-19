@@ -1,19 +1,19 @@
 package com.example.bookcase;
 
 public class Book {
-    private String id; // Firestore document ID
+    private String id; // Add bookId field
     private String title;
     private String author;
     private String description;
     private String imageUrl;
-    private boolean isRead;
+    private boolean isRead = false;
     private int progress;
-    private int location; // Cube location (1-8)
+    private int location;
 
-    // Empty constructor required for Firestore
+    // Default constructor (needed for Firestore)
     public Book() {}
 
-    // Constructor
+    // Constructor without ID (Used for Firestore auto-generated IDs)
     public Book(String title, String author, String description, String imageUrl, boolean isRead, int progress, int location) {
         this.title = title;
         this.author = author;
@@ -24,7 +24,19 @@ public class Book {
         this.location = location;
     }
 
-    // Getters and Setters
+    // ✅ **Constructor with ID**
+    public Book(String id, String title, String author, String description, String imageUrl, boolean isRead, int progress, int location) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.isRead = isRead;
+        this.progress = progress;
+        this.location = location;
+    }
+
+    // ✅ **Getters and Setters**
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

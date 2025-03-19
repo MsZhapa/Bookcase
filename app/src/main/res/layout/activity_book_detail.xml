@@ -1,137 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <!-- 📌 Include Custom Toolbar -->
+    <include layout="@layout/toolbar_layout"/>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:padding="24dp">
+    android:padding="20dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:padding="10dp">
 
+        <ImageView
+            android:id="@+id/bookImageView"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/books1"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:text="Book Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:id="@+id/authorTextView"
+            android:text="by Author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:text="Location"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/descriptionTextView"
+            android:text="Description"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Read Status Checkbox -->
+
+        <TextView
+            android:id="@+id/readStatusTextView"
+            android:text="Did you read this book?"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <CheckBox
+            android:id="@+id/readCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mark as Read"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"/>
+        <!-- Progress Bar with Numeric Indicator -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:background="@drawable/book_detail_card"
-            android:orientation="vertical"
-            android:elevation="6dp">
-
-            <ImageView
-                android:id="@+id/bookImageView"
-                android:layout_width="150dp"
-                android:layout_height="200dp"
-                android:scaleType="fitCenter"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/books1"/>
-
-            <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:paddingBottom="8dp"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/authorTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray"
-                android:paddingBottom="6dp"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/locationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:paddingBottom="8dp"
-                android:gravity="center"/>
-
-            <TextView
-                android:text="Description:"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp"/>
-            <TextView
-                android:id="@+id/descriptionTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@android:color/black"
-                android:paddingBottom="8dp"/>
-
-            <CheckBox
-                android:id="@+id/readCheckBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mark as Read"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone"
+            android:id="@+id/progressLayout">
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                android:layout_width="match_parent"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
+                android:layout_weight="1"
+                android:max="100"
                 android:progress="0"
-                style="?android:attr/progressBarStyleHorizontal"/>
+                android:indeterminate="false"/>
 
-            <Button
-                android:id="@+id/setReminderButton"
-                android:layout_width="match_parent"
+            <!-- 📌 Numeric Progress Indicator -->
+            <TextView
+                android:id="@+id/progressPercentage"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/rounded_button"
-                android:text="Set Reading Reminder"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"/>
+                android:text="0%"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:layout_marginStart="8dp"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:gravity="center">
 
-            <Button
-                android:id="@+id/moveButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/rounded_button"
-                android:text="Move Book"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"/>
 
-            <Button
-                android:id="@+id/editBookButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/rounded_button_dark"
-                android:text="Edit Book"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"/>
 
-            <Button
-                android:id="@+id/deleteBookButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/rounded_button_red"
-                android:text="Delete Book"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"/>
-        </LinearLayout>
 
+        <Button android:id="@+id/moveButton" android:text="Move Book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button android:id="@+id/editBookButton" android:text="Edit Book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button android:id="@+id/deleteBookButton" android:text="Delete Book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </ScrollView>
+</LinearLayout>
