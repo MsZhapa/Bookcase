@@ -2,10 +2,10 @@
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:columnCount="2"
     android:rowCount="4"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:padding="16dp">
 
     <!-- Cube 1 -->
     <Button
@@ -14,7 +14,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 1"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -26,7 +26,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 2"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -38,7 +38,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 3"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -50,7 +50,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 4"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -62,7 +62,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 5"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -74,7 +74,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 6"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -86,7 +86,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 7"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>
@@ -98,7 +98,7 @@
         android:layout_height="0dp"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:background="@drawable/cube_background"
+        android:background="@drawable/pic"
         android:text="Cube 8"
         android:textColor="@android:color/white"
         android:textSize="18sp"/>

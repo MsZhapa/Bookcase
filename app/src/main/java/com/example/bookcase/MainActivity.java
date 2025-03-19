@@ -1,59 +1,45 @@
 package com.example.bookcase;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-    private ListView bookListView;
-    private BookDatabase bookDatabase;
-    private int cubeNumber;
-    private List<Book> books;
+    private RecyclerView recyclerView;
+    private BookAdapter bookAdapter;
+    private FirebaseFirestore firestore;
+    private List<Book> bookList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bookListView = findViewById(R.id.bookListView);
-        bookDatabase = BookDatabase.getDatabase(this);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Get cube number from intent
-        cubeNumber = getIntent().getIntExtra("cubeNumber", 1);
+        firestore = FirebaseFirestore.getInstance();
 
-        // Fetch books by cube
-        books = bookDatabase.bookDao().getBooksByCube(cubeNumber);
+        // Fetch books from Firestore
+        fetchBooksFromFirestore();
+    }
 
-        // Convert book titles to String Array for ListView
-        String[] bookTitles = new String[books.size()];
-        for (int i = 0; i < books.size(); i++) {
-            bookTitles[i] = books.get(i).title;
-        }
-
-        // Set adapter for ListView
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, bookTitles);
-        bookListView.setAdapter(adapter);
-
-        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Book selectedBook = books.get(position);
-
-                // Open BookDetailActivity
-                Intent intent = new Intent(MainActivity.this, BookDetailActivity.class);
-                intent.putExtra("id", selectedBook.id);
-                intent.putExtra("title", selectedBook.title);
-                intent.putExtra("author", selectedBook.author);
-                intent.putExtra("location", selectedBook.location);
-                startActivity(intent);
-            }
-        });
-        
+    private void fetchBooksFromFirestore() {
+        firestore.collection("books").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        bookList = task.getResult().toObjects(Book.class);
+                        bookAdapter = new BookAdapter(MainActivity.this, bookList);
+                        recyclerView.setAdapter(bookAdapter);
+                    } else {
+                        Log.e("Firestore", "Error fetching books", task.getException());
+                    }
+                });
     }
 }

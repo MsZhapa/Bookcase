@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical"
+android:padding="16dp"
+android:background="@color/white">
     <TextView
-        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My Bookcase"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_margin="20dp"
         android:layout_gravity="center_horizontal"
-        android:paddingBottom="16dp" />
+        android:textStyle="bold"
+        android:text="BOOKS"
+        android:textColor="@android:color/white"
+        />
 
-    <ListView
-        android:id="@+id/bookListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp" />
-
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/recyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"/>
 </LinearLayout>
