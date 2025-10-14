@@ -16,23 +16,17 @@ public class WelcomeActivity extends AppCompatActivity {
 
         Button startButton = findViewById(R.id.startButton);
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to MainActivity
-                Intent intent = new Intent(WelcomeActivity.this, CubesActivity.class);
-                startActivity(intent);
-                finish(); // Close the welcome screen
-            }
+        startButton.setOnClickListener(v -> {
+            // Navigate to MainActivity
+            Intent intent = new Intent(WelcomeActivity.this, CubesActivity.class);
+            startActivity(intent);
+            finish(); // Close the welcome screen
         });
 
         Button adminButton = findViewById(R.id.adminButton);
-        adminButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(WelcomeActivity.this, AdminActivity.class);
-                startActivity(intent);
-            }
+        adminButton.setOnClickListener(v -> {
+            Intent intent = new Intent(WelcomeActivity.this, AdminActivity.class);
+            startActivity(intent);
         });
 
     }
