@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -14,10 +13,8 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -32,7 +29,7 @@ public class EditBookActivity extends AppCompatActivity {
 
     private SeekBar editProgressBar;
     private Spinner cubeSpinner;
-    private Button saveButton, uploadImageButton;
+    private Button saveButton;
     private ImageView bookCoverImage;
     private FirebaseFirestore firestore;
     private FirebaseStorage storage;
@@ -60,7 +57,7 @@ public class EditBookActivity extends AppCompatActivity {
         editProgressBar = findViewById(R.id.editProgressBar);
         cubeSpinner = findViewById(R.id.cubeSpinner);
         saveButton = findViewById(R.id.saveButton);
-        uploadImageButton = findViewById(R.id.uploadImageButton);
+        Button uploadImageButton = findViewById(R.id.uploadImageButton);
         bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // 🏷️ Set Screen Title
@@ -69,7 +66,7 @@ public class EditBookActivity extends AppCompatActivity {
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         // Load Cube Options in Spinner
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
@@ -124,7 +121,7 @@ public class EditBookActivity extends AppCompatActivity {
                             editTitle.setText(book.getTitle());
                             editAuthor.setText(book.getAuthor());
                             editDescription.setText(book.getDescription());
-                            editReadCheckBox.setChecked(Boolean.TRUE.equals(book.isRead()));
+                            editReadCheckBox.setChecked(book.isRead());
                             editProgressBar.setProgress(book.getProgress());
                             editProgressPercentage.setText(book.getProgress() + "%"); // ✅ Set initial progress value
 

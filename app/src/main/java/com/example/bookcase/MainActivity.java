@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Error loading books", Toast.LENGTH_SHORT).show()
                 );
     }
-
 
     private void fetchBooksFromFirestore() {
         firestore.collection("books").get()

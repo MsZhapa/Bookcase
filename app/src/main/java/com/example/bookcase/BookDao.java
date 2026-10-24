@@ -18,6 +18,6 @@ public interface BookDao {
     List<Book> getAllBooks();
 
     @Query("UPDATE books SET location = :newLocation WHERE id = :bookId")
-    void updateBookLocation(int bookId, int newLocation);
+    void updateBookLocation(String bookId, int newLocation);
 
 }

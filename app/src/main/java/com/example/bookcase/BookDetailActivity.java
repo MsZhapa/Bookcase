@@ -3,7 +3,6 @@ package com.example.bookcase;
 import android.content.Intent;
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -12,26 +11,21 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 public class BookDetailActivity extends AppCompatActivity {
 
-    private TextView titleTextView, authorTextView, descriptionTextView, locationTextView, readStatusTextView;
+    private TextView titleTextView, authorTextView, descriptionTextView, locationTextView;
     private ImageView bookImageView;
 
     private TextView progressPercentage;
     private ProgressBar progressBar;
     private LinearLayout progressLayout;
     private CheckBox readCheckBox;
-    private Button moveButton, editBookButton, deleteBookButton;
+    private Button moveButton, deleteBookButton;
     private FirebaseFirestore firestore;
     private String bookId;
 
@@ -46,21 +40,20 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         // Initialize views
         titleTextView = findViewById(R.id.titleTextView);
         authorTextView = findViewById(R.id.authorTextView);
         descriptionTextView = findViewById(R.id.descriptionTextView);
         locationTextView = findViewById(R.id.locationTextView);
-        readStatusTextView = findViewById(R.id.readStatusTextView);
         bookImageView = findViewById(R.id.bookImageView);
         readCheckBox = findViewById(R.id.readCheckBox);
         progressBar = findViewById(R.id.progressBar);
         progressPercentage = findViewById(R.id.progressPercentage); // ✅ Initialize TextView
         progressLayout = findViewById(R.id.progressLayout); // ✅ Initialize Layout Container
         moveButton = findViewById(R.id.moveButton);
-        editBookButton = findViewById(R.id.editBookButton);
+        Button editBookButton = findViewById(R.id.editBookButton);
         deleteBookButton = findViewById(R.id.deleteBookButton);
 
         firestore = FirebaseFirestore.getInstance();
@@ -103,7 +96,7 @@ public class BookDetailActivity extends AppCompatActivity {
                             locationTextView.setText("Current Cube: " + book.getLocation());
                             descriptionTextView.setText(book.getDescription());
 
-                            boolean isRead = Boolean.TRUE.equals(book.isRead());
+                            boolean isRead = book.isRead();
                             readCheckBox.setChecked(isRead);
 
                             int progress = book.getProgress();
@@ -137,8 +130,6 @@ public class BookDetailActivity extends AppCompatActivity {
                 .show();
     }
 
-
-    // 📌 Delete book from Firestore
     // 📌 Delete Book from Firestore
     private void deleteBook() {
         if (bookId != null) {

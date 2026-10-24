@@ -2,33 +2,25 @@ package com.example.bookcase;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class CubesActivity extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cubes);
-// 🏷️ Set Screen Title
+
+        // 🏷️ Set Screen Title
         TextView screenTitle = findViewById(R.id.screenTitle);
         screenTitle.setText("Select a Cube and find a book");
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(CubesActivity.this, WelcomeActivity.class);
-                startActivity(intent);
-            }
-        });
+        backButton.setOnClickListener(v -> finish());
+
         // Example: If Cube 1 button is clicked
         findViewById(R.id.cube1Button).setOnClickListener(v -> openMainActivity(1));
         findViewById(R.id.cube2Button).setOnClickListener(v -> openMainActivity(2));

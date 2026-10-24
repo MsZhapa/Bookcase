@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -14,9 +13,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -28,10 +25,7 @@ public class AdminActivity extends AppCompatActivity {
     private CheckBox readCheckBox;
     private SeekBar progressSeekBar;
     private Spinner cubeSpinner;
-    private Button addButton, uploadImageButton;
     private ImageView bookCoverImage;
-    private FirebaseFirestore firestore;
-    private FirebaseStorage storage;
     private StorageReference storageReference;
     private Uri imageUri; // Stores the selected image
 
@@ -43,17 +37,31 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        // Initialize Firestore & Firebase Storage
-        firestore = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
+        // Initialize Firebase Storage
+        storageReference = FirebaseStorage.getInstance().getReference();
 
-        // Initialize Progress Views
-        SeekBar adminProgressBar = findViewById(R.id.adminProgressBar);
+        // 🏷️ Set Screen Title
+        TextView screenTitle = findViewById(R.id.screenTitle);
+        screenTitle.setText("Add a New Book");
+
+        // 🔙 Handle Back Button Click
+        ImageView backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> finish());
+
+        // Initialize Views
+        titleEditText = findViewById(R.id.titleEditText);
+        authorEditText = findViewById(R.id.authorEditText);
+        descriptionEditText = findViewById(R.id.descriptionEditText);
+        readCheckBox = findViewById(R.id.readCheckBox);
+        progressSeekBar = findViewById(R.id.adminProgressBar);
         adminProgressPercentage = findViewById(R.id.adminProgressPercentage); // ✅ Initialize TextView
+        cubeSpinner = findViewById(R.id.cubeSpinner);
+        Button addButton = findViewById(R.id.addButton);
+        Button uploadImageButton = findViewById(R.id.uploadImageButton);
+        bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // ✅ Update progress percentage when SeekBar changes
-        adminProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        progressSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 adminProgressPercentage.setText(progress + "%"); // ✅ Update TextView with progress percentage
@@ -65,25 +73,6 @@ public class AdminActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
-        // 🏷️ Set Screen Title
-        TextView screenTitle = findViewById(R.id.screenTitle);
-        screenTitle.setText("Add a New Book");
-
-        // 🔙 Handle Back Button Click
-        ImageView backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> onBackPressed());
-
-        // Initialize Views
-        titleEditText = findViewById(R.id.titleEditText);
-        authorEditText = findViewById(R.id.authorEditText);
-        descriptionEditText = findViewById(R.id.descriptionEditText);
-        readCheckBox = findViewById(R.id.readCheckBox);
-        progressSeekBar = findViewById(R.id.adminProgressBar);
-        cubeSpinner = findViewById(R.id.cubeSpinner);
-        addButton = findViewById(R.id.addButton);
-        uploadImageButton = findViewById(R.id.uploadImageButton);
-        bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // Load Cube Options in Spinner
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
