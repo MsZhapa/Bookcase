@@ -5,117 +5,135 @@
     android:orientation="vertical">
 
     <!-- 📌 Include Toolbar -->
-    <include layout="@layout/toolbar_layout"/>
+    <include layout="@layout/toolbar_layout" />
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="20dp">
-
-    <LinearLayout
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="10dp">
+        android:layout_height="match_parent"
+        android:padding="20dp">
 
-        <!-- 📚 Book Title -->
-        <EditText
-            android:id="@+id/titleEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter book title"/>
-
-        <!-- ✍️ Author -->
-        <EditText
-            android:id="@+id/authorEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter author name"/>
-
-        <!-- 📖 Description -->
-        <EditText
-            android:id="@+id/descriptionEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter book description"
-            android:minLines="3"
-            android:gravity="top"/>
-
-        <!-- 📦 Cube Selection -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Cube" android:layout_marginTop="10dp"/>
-        <Spinner
-            android:id="@+id/cubeSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <!-- 📚 Read Status -->
-        <CheckBox
-            android:id="@+id/readCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mark as Read"/>
-
-        <!-- 📊 Progress Bar (Only visible if book is not fully read) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reading Progress (%)" android:layout_marginTop="10dp"/>
-        <!-- Progress Bar with Percentage Indicator -->
         <LinearLayout
-            android:id="@+id/adminProgressLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingTop="8dp">
-
-            <SeekBar
-                android:id="@+id/adminProgressBar"
-                android:layout_width="0dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp">
+            <!-- ISBN Lookup -->
+            <EditText
+                android:id="@+id/isbnEditText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:max="100"
-                android:progress="0"/>
+                android:hint="Enter ISBN-10 or ISBN-13"
+                android:inputType="text"
+                android:singleLine="true"
+                android:maxLength="17" />
 
-            <!-- ✅ Progress Percentage Display -->
+            <Button
+                android:id="@+id/findBookButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Find Book"
+                android:layout_marginBottom="16dp" />
+            <!-- 📚 Book Title -->
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter book title" />
+
+            <!-- ✍️ Author -->
+            <EditText
+                android:id="@+id/authorEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter author name" />
+
+            <!-- 📖 Description -->
+            <EditText
+                android:id="@+id/descriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:hint="Enter book description"
+                android:minLines="3" />
+
+            <!-- 📦 Cube Selection -->
             <TextView
-                android:id="@+id/adminProgressPercentage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0%"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
-                android:layout_marginStart="8dp"/>
+                android:layout_marginTop="10dp"
+                android:text="Select Cube" />
+
+            <Spinner
+                android:id="@+id/cubeSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- 📚 Read Status -->
+            <CheckBox
+                android:id="@+id/readCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark as Read" />
+
+            <!-- 📊 Progress Bar (Only visible if book is not fully read) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Reading Progress (%)" />
+            <!-- Progress Bar with Percentage Indicator -->
+            <LinearLayout
+                android:id="@+id/adminProgressLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="8dp">
+
+                <SeekBar
+                    android:id="@+id/adminProgressBar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0" />
+
+                <!-- ✅ Progress Percentage Display -->
+                <TextView
+                    android:id="@+id/adminProgressPercentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="0%"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+
+            <!-- 🖼️ Book Cover Image -->
+            <ImageView
+                android:id="@+id/bookCoverImage"
+                android:layout_width="150dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/books1" />
+
+            <!-- 📤 Upload New Cover -->
+            <Button
+                android:id="@+id/uploadImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Cover Image" />
+
+            <!-- ➕ Add Book Button -->
+            <Button
+                android:id="@+id/addButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Add Book" />
         </LinearLayout>
-
-
-        <!-- 🖼️ Book Cover Image -->
-        <ImageView
-            android:id="@+id/bookCoverImage"
-            android:layout_width="150dp"
-            android:layout_height="200dp"
-            android:src="@drawable/books1"
-            android:scaleType="centerCrop"
-            android:layout_marginTop="10dp"/>
-
-        <!-- 📤 Upload New Cover -->
-        <Button
-            android:id="@+id/uploadImageButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Upload Cover Image"/>
-
-        <!-- ➕ Add Book Button -->
-        <Button
-            android:id="@+id/addButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Book"
-            android:layout_marginTop="10dp"/>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
 </LinearLayout>

@@ -18,14 +18,30 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.UUID;
+import com.bumptech.glide.Glide;
+import android.os.Handler;
+import android.os.Looper;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private EditText titleEditText, authorEditText, descriptionEditText;
+    private EditText titleEditText, authorEditText, descriptionEditText, isbnEditText;
     private CheckBox readCheckBox;
     private SeekBar progressSeekBar;
     private Spinner cubeSpinner;
     private ImageView bookCoverImage;
+    private String retrievedCoverUrl = "";
     private StorageReference storageReference;
     private Uri imageUri; // Stores the selected image
 
@@ -50,6 +66,8 @@ public class AdminActivity extends AppCompatActivity {
 
         // Initialize Views
         titleEditText = findViewById(R.id.titleEditText);
+        isbnEditText = findViewById(R.id.isbnEditText);
+        Button findBookButton = findViewById(R.id.findBookButton);
         authorEditText = findViewById(R.id.authorEditText);
         descriptionEditText = findViewById(R.id.descriptionEditText);
         readCheckBox = findViewById(R.id.readCheckBox);
@@ -58,6 +76,19 @@ public class AdminActivity extends AppCompatActivity {
         cubeSpinner = findViewById(R.id.cubeSpinner);
         Button addButton = findViewById(R.id.addButton);
         Button uploadImageButton = findViewById(R.id.uploadImageButton);
+        findBookButton.setOnClickListener(v -> {
+            String isbn = isbnEditText.getText().toString()
+                    .replace("-", "")
+                    .replace(" ", "")
+                    .trim();
+
+            if (!isbn.matches("(\\d{13}|\\d{9}[\\dXx])")) {
+                isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 format");
+                return;
+            }
+
+            lookupBookByIsbn(isbn);
+        });
         bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // ✅ Update progress percentage when SeekBar changes
@@ -84,15 +115,225 @@ public class AdminActivity extends AppCompatActivity {
 
         // Add Book Button Click
         addButton.setOnClickListener(v -> {
+            if (titleEditText.getText().toString().trim().isEmpty()
+                    || authorEditText.getText().toString().trim().isEmpty()
+                    || descriptionEditText.getText().toString().trim().isEmpty()) {
+                Toast.makeText(this, "All fields must be filled!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (imageUri != null) {
                 uploadImageToFirebase();
             } else {
-                saveBookToFirestore(null);
+                saveBookToFirestore(retrievedCoverUrl);
             }
         });
     }
 
     // Opens file chooser to pick an image
+
+    private void lookupBookByIsbn(String isbn) {
+        retrievedCoverUrl = "";
+        imageUri = null;
+        bookCoverImage.setImageResource(R.drawable.books1);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            HttpURLConnection connection = null;
+
+            try {
+                URL url = new URL(
+                        "https://openlibrary.org/isbn/" + isbn + ".json"
+                );
+
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+                connection.setRequestProperty(
+                        "User-Agent", "Bookcase/2.0 (personal book catalog)"
+                );
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == 404) {
+                    mainHandler.post(() ->
+                            Toast.makeText(this,
+                                    "Book not found",
+                                    Toast.LENGTH_LONG).show()
+                    );
+                    return;
+                }
+
+                if (responseCode != 200) {
+                    throw new Exception("HTTP " + responseCode);
+                }
+
+                StringBuilder response = new StringBuilder();
+
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(
+                                connection.getInputStream(),
+                                StandardCharsets.UTF_8
+                        ))) {
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                }
+
+                JSONObject book = new JSONObject(response.toString());
+
+                String title = book.optString("title", "");
+                String author = book.optString("by_statement", "");
+                String description = "";
+
+                Object descriptionValue = book.opt("description");
+
+                if (descriptionValue instanceof String) {
+                    description = (String) descriptionValue;
+                } else if (descriptionValue instanceof JSONObject) {
+                    description = ((JSONObject) descriptionValue)
+                            .optString("value", "");
+                }
+
+// If the edition has no description, check the Work record
+                if (description.isEmpty()) {
+                    JSONArray works = book.optJSONArray("works");
+
+                    if (works != null && works.length() > 0) {
+                        String workKey = works.getJSONObject(0)
+                                .optString("key", "");
+
+                        if (workKey.matches("/works/OL\\d+W")) {
+                            try {
+                                JSONObject work = fetchJson(
+                                        "https://openlibrary.org" + workKey + ".json"
+                                );
+
+                                Object workDescription = work.opt("description");
+
+                                if (workDescription instanceof String) {
+                                    description = (String) workDescription;
+                                } else if (workDescription instanceof JSONObject) {
+                                    description = ((JSONObject) workDescription)
+                                            .optString("value", "");
+                                }
+
+                            } catch (Exception e) {
+                                android.util.Log.w(
+                                        "Bookcase",
+                                        "Could not retrieve Work description",
+                                        e
+                                );
+                            }
+                        }
+                    }
+                }
+
+                final String finalDescription = description;
+                String coverUrl = "";
+
+                JSONArray covers = book.optJSONArray("covers");
+
+                if (covers != null && covers.length() > 0) {
+                    int coverId = covers.optInt(0);
+
+                    if (coverId > 0) {
+                        coverUrl = "https://covers.openlibrary.org/b/id/"
+                                + coverId + "-L.jpg";
+                    }
+                }
+
+                final String finalCoverUrl = coverUrl;
+                mainHandler.post(() -> {
+                    retrievedCoverUrl = finalCoverUrl;
+
+                    if (!finalCoverUrl.isEmpty()) {
+                        Glide.with(AdminActivity.this)
+                                .load(finalCoverUrl)
+                                .placeholder(R.drawable.books1)
+                                .error(R.drawable.books1)
+                                .into(bookCoverImage);
+                    } else {
+                        bookCoverImage.setImageResource(R.drawable.books1);
+                    }
+                });
+
+                mainHandler.post(() -> {
+                    if (!title.isEmpty()) {
+                        titleEditText.setText(title);
+                    }
+
+                    if (!author.isEmpty()) {
+                        authorEditText.setText(author);
+                    }
+
+                    if (!finalDescription.isEmpty()) {
+                        descriptionEditText.setText(finalDescription);
+                    }
+
+                    Toast.makeText(this,
+                            "Book found!",
+                            Toast.LENGTH_SHORT).show();
+                });
+
+            } catch (Exception e) {
+                mainHandler.post(() ->
+                        Toast.makeText(this,
+                                "Lookup failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show()
+                );
+
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+
+                executor.shutdown();
+            }
+        });
+    }
+    private JSONObject fetchJson(String urlString) throws Exception {
+        HttpURLConnection connection = null;
+
+        try {
+            connection = (HttpURLConnection) new URL(urlString).openConnection();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+            connection.setRequestProperty(
+                    "User-Agent", "Bookcase/2.0 (personal book catalog)"
+            );
+
+            if (connection.getResponseCode() != 200) {
+                throw new Exception("HTTP " + connection.getResponseCode());
+            }
+
+            StringBuilder response = new StringBuilder();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(
+                            connection.getInputStream(),
+                            StandardCharsets.UTF_8
+                    ))) {
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+
+            return new JSONObject(response.toString());
+
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
     private void openFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
