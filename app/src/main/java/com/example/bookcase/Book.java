@@ -1,17 +1,18 @@
 package com.example.bookcase;
 
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
+
 import java.util.UUID;
 
-@Entity(tableName = "books")
+
 public class Book {
-    @PrimaryKey
+
     @NonNull
     private String id = ""; // Add bookId field
     private String title;
+
+    private String isbn;
+    private int pageCount;
     private String author;
     private String description;
     private String imageUrl;
@@ -19,34 +20,13 @@ public class Book {
     private int progress;
     private int location;
 
-    // Default constructor (needed for Firestore & Room)
+    // Required for Firestore deserialization
     public Book() {}
 
-    // Constructor with title, author, location (used for preloading in BookDatabase)
-    @Ignore
-    public Book(String title, String author, int location) {
-        this.id = UUID.randomUUID().toString();
-        this.title = title;
-        this.author = author;
-        this.location = location;
-    }
+    public Book(String id, String title, String author,
+                String description, String imageUrl,
+                boolean isRead, int progress, int location) {
 
-    // Constructor without ID (Used for Firestore auto-generated IDs)
-    @Ignore
-    public Book(String title, String author, String description, String imageUrl, boolean isRead, int progress, int location) {
-        this.id = UUID.randomUUID().toString();
-        this.title = title;
-        this.author = author;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.isRead = isRead;
-        this.progress = progress;
-        this.location = location;
-    }
-
-    // ✅ **Constructor with ID**
-    @Ignore
-    public Book(String id, String title, String author, String description, String imageUrl, boolean isRead, int progress, int location) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.author = author;
@@ -70,6 +50,22 @@ public class Book {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public void setPageCount(int pageCount) {
+        this.pageCount = pageCount;
+    }
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }

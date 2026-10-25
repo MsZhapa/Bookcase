@@ -42,6 +42,9 @@ public class AdminActivity extends AppCompatActivity {
     private Spinner cubeSpinner;
     private ImageView bookCoverImage;
     private String retrievedCoverUrl = "";
+
+    private int retrievedPageCount = 0;
+    private String retrievedIsbn = "";
     private StorageReference storageReference;
     private Uri imageUri; // Stores the selected image
 
@@ -134,6 +137,9 @@ public class AdminActivity extends AppCompatActivity {
 
     private void lookupBookByIsbn(String isbn) {
         retrievedCoverUrl = "";
+        retrievedPageCount = 0;
+        retrievedIsbn = "";
+
         imageUri = null;
         bookCoverImage.setImageResource(R.drawable.books1);
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -185,6 +191,8 @@ public class AdminActivity extends AppCompatActivity {
                 }
 
                 JSONObject book = new JSONObject(response.toString());
+
+                int pageCount = book.optInt("number_of_pages", 0);
 
                 String title = book.optString("title", "");
                 String author = book.optString("by_statement", "");
@@ -262,7 +270,14 @@ public class AdminActivity extends AppCompatActivity {
                     }
                 });
 
+
                 mainHandler.post(() -> {
+
+                    // Store the ISBN and page count for saving to Firestore
+                    retrievedPageCount = pageCount;
+                    retrievedIsbn = isbn;
+
+                    // Fill in the book information
                     if (!title.isEmpty()) {
                         titleEditText.setText(title);
                     }
@@ -275,9 +290,11 @@ public class AdminActivity extends AppCompatActivity {
                         descriptionEditText.setText(finalDescription);
                     }
 
-                    Toast.makeText(this,
-                            "Book found!",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            AdminActivity.this,
+                            "Book found! Pages: " + pageCount,
+                            Toast.LENGTH_SHORT
+                    ).show();
                 });
 
             } catch (Exception e) {
@@ -384,6 +401,11 @@ public class AdminActivity extends AppCompatActivity {
 
         // ✅ Create a **Book object** with the generated ID
         Book book = new Book(bookId, title, author, description, finalImageUrl, isRead, progress, cubeLocation);
+        book.setIsbn(retrievedIsbn.isEmpty()
+                ? isbnEditText.getText().toString().trim()
+                : retrievedIsbn);
+
+        book.setPageCount(retrievedPageCount);
 
         // ✅ Store the book in Firestore using its unique ID
         FirebaseFirestore.getInstance().collection("books").document(bookId)
