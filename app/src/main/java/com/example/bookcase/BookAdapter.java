@@ -32,6 +32,12 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = bookList.get(position);
 
+        if ("LENT".equals(book.getLendingStatus())) {
+            holder.lendingStatusTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.lendingStatusTextView.setVisibility(View.GONE);
+        }
+
         // Ensure TextView is not null before setting text
         if (holder.titleTextView != null) {
             holder.titleTextView.setText(book.getTitle());
@@ -50,6 +56,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, BookDetailActivity.class);
+            intent.putExtra("normalizedCopy", book.isNormalizedCopy());
             intent.putExtra("bookId", book.getId()); // ✅ Pass correct book ID
             context.startActivity(intent);
         });
@@ -62,7 +69,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, authorTextView;
+        TextView titleTextView, authorTextView, lendingStatusTextView;
         ImageView bookImageView;
 
         public BookViewHolder(@NonNull View itemView) {
@@ -72,6 +79,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             titleTextView = itemView.findViewById(R.id.titleTextView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
             bookImageView = itemView.findViewById(R.id.bookImageView);
+            lendingStatusTextView = itemView.findViewById(R.id.lendingStatusTextView);
         }
     }
 }

@@ -35,6 +35,8 @@ public class EditBookActivity extends AppCompatActivity {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private String bookId;
+    private boolean normalizedCopy;
+    private Book loadedBook;
     private Uri imageUri;
     private static final int PICK_IMAGE_REQUEST = 1;
 
@@ -74,6 +76,8 @@ public class EditBookActivity extends AppCompatActivity {
         cubeSpinner.setAdapter(adapter);
 
         // ✅ Get bookId from Intent
+        normalizedCopy = getIntent().getBooleanExtra("normalizedCopy", false);
+        saveButton.setEnabled(false);
         bookId = getIntent().getStringExtra("bookId");
         if (bookId == null || bookId.isEmpty()) {
             Toast.makeText(this, "Error: Book ID not found!", Toast.LENGTH_SHORT).show();
@@ -113,10 +117,10 @@ public class EditBookActivity extends AppCompatActivity {
     // 📌 **Step 1: Load Book Details from Firestore**
     // ✅ Load Book Details
     private void loadBookDetails() {
-        firestore.collection("books").document(bookId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Book book = documentSnapshot.toObject(Book.class);
+        new BookRepository(firestore).load(bookId, normalizedCopy)
+                .addOnSuccessListener(book -> {
+                        loadedBook = book;
+                        saveButton.setEnabled(true);
                         if (book != null) {
                             editTitle.setText(book.getTitle());
                             editAuthor.setText(book.getAuthor());
@@ -131,7 +135,6 @@ public class EditBookActivity extends AppCompatActivity {
                                 Glide.with(this).load(book.getImageUrl()).into(bookCoverImage);
                             }
                         }
-                    }
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(EditBookActivity.this, "Error loading book", Toast.LENGTH_SHORT).show()
@@ -174,19 +177,24 @@ public class EditBookActivity extends AppCompatActivity {
         String newTitle = editTitle.getText().toString();
         String newAuthor = editAuthor.getText().toString();
         String newDescription = editDescription.getText().toString();
-        String finalImageUrl = (imageUrl != null) ? imageUrl : getIntent().getStringExtra("imageUrl");
+        String finalImageUrl = (imageUrl != null) ? imageUrl : loadedBook.getImageUrl();
         boolean newIsRead = editReadCheckBox.isChecked();
         int newProgress = editProgressBar.getProgress();
         int newCubeLocation = cubeSpinner.getSelectedItemPosition() + 1;
 
-        firestore.collection("books").document(bookId)
-                .update("title", newTitle, "author", newAuthor, "description", newDescription,
-                        "imageUrl", finalImageUrl, "isRead", newIsRead, "progress", newProgress, "location", newCubeLocation)
+        loadedBook.setTitle(newTitle); loadedBook.setAuthor(newAuthor);
+        loadedBook.setDescription(newDescription); loadedBook.setImageUrl(finalImageUrl);
+        loadedBook.setRead(newIsRead); loadedBook.setProgress(newProgress);
+        saveButton.setEnabled(false);
+        new BookRepository(firestore).save(bookId, normalizedCopy, loadedBook, newCubeLocation)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(EditBookActivity.this, "Book Updated", Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .addOnFailureListener(e -> Toast.makeText(EditBookActivity.this, "Failed to update book", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    saveButton.setEnabled(true);
+                    Toast.makeText(EditBookActivity.this, "Failed to update book", Toast.LENGTH_SHORT).show();
+                });
     }
 
 }

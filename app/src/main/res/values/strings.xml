@@ -11,4 +11,5 @@
         <item>Cube 8</item>
     </string-array>
 
+    <string name="add_book_to_cube">Add book to this cube</string>
 </resources>

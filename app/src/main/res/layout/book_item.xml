@@ -49,7 +49,19 @@
             android:textColor="@android:color/holo_blue_dark"
             android:textStyle="italic"
             android:maxLines="1"/>
-
+        <!-- Lending Status -->
+        <TextView
+            android:id="@+id/lendingStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="Lent out"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_orange_dark"
+            android:visibility="gone"/>
         <!-- Read Status -->
         <TextView
             android:id="@+id/readStatusTextView"

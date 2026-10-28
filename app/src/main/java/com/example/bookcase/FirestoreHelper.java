@@ -1,43 +1,40 @@
 package com.example.bookcase;
 
 import android.util.Log;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 public class FirestoreHelper {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference booksRef = db.collection("books");
 
     // Add a book
     public void addBook(Book book) {
-        booksRef.add(book)
-                .addOnSuccessListener(documentReference -> Log.d("Firestore", "Book added with ID: " + documentReference.getId()))
+        if (book.getId().isEmpty()) book.setId(db.collection("bookCopies").document().getId());
+        new BookRepository(db).add(book)
                 .addOnFailureListener(e -> Log.e("Firestore", "Error adding book", e));
     }
 
     // Fetch all books
     public void getAllBooks(FirestoreCallback callback) {
-        booksRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                List<Book> bookList = task.getResult().toObjects(Book.class);
-                callback.onSuccess(bookList);
-            } else {
-                callback.onFailure(task.getException());
-            }
-        });
+        new BookRepository(db).getBooks(null)
+                .addOnSuccessListener(callback::onSuccess)
+                .addOnFailureListener(callback::onFailure);
     }
 
     // Update book
     public void updateBook(String bookId, Book updatedBook) {
-        booksRef.document(bookId).set(updatedBook)
+        new BookRepository(db).save(bookId, updatedBook.isNormalizedCopy(), updatedBook, updatedBook.getLocation())
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Book updated"))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error updating book", e));
     }
 
     // Delete book
     public void deleteBook(String bookId) {
-        booksRef.document(bookId).delete()
+        deleteBook(bookId, false);
+    }
+
+    public void deleteBook(String bookId, boolean normalizedCopy) {
+        new BookRepository(db).copyRef(bookId, normalizedCopy).delete()
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Book deleted"))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error deleting book", e));
     }

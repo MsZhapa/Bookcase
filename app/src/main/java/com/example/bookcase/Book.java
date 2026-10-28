@@ -10,7 +10,7 @@ public class Book {
     @NonNull
     private String id = ""; // Add bookId field
     private String title;
-
+    private String lendingStatus = "AVAILABLE";
     private String isbn;
     private int pageCount;
     private String author;
@@ -19,6 +19,18 @@ public class Book {
     private boolean isRead = false;
     private int progress;
     private int location;
+
+    private long position;
+    private String borrowerName;
+    private boolean normalizedCopy;
+
+    public long getPosition() { return position; }
+    public void setPosition(long value) { position = value; }
+    public String getBorrowerName() { return borrowerName; }
+    public void setBorrowerName(String value) { borrowerName = value; }
+    @com.google.firebase.firestore.Exclude
+    public boolean isNormalizedCopy() { return normalizedCopy; }
+    public void setNormalizedCopy(boolean value) { normalizedCopy = value; }
 
     // Required for Firestore deserialization
     public Book() {}
@@ -44,6 +56,9 @@ public class Book {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+    public String getLendingStatus() { return lendingStatus; }
+    public void setLendingStatus(String lendingStatus) { this.lendingStatus = lendingStatus; }
+
 
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }

@@ -1,6 +1,8 @@
 package com.example.bookcase;
 
 import android.os.Bundle;
+import android.content.Intent;
+import android.view.View;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,40 +47,33 @@ public class MainActivity extends AppCompatActivity {
         // 🔥 Get selectedCube from Intent
         int selectedCube = getIntent().getIntExtra("selectedCube", -1);
 
-        if (selectedCube != -1) {
-            fetchBooksFromCube(selectedCube);
+        if (selectedCube >= 1 && selectedCube <= 8) {
+            View addBookButton = findViewById(R.id.addBookToCubeButton);
+            addBookButton.setVisibility(View.VISIBLE);
+            addBookButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+                intent.putExtra("selectedCube", selectedCube);
+                startActivity(intent);
+            });
         } else {
             Toast.makeText(this, "No cube selected!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void fetchBooksFromCube(int cubeNumber) {
-        firestore.collection("books")
-                .whereEqualTo("location", cubeNumber) // 🔥 Filter by correct cube
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    bookList.clear();
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        Book book = document.toObject(Book.class);
-                        bookList.add(book);
-                    }
-                    bookAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(MainActivity.this, "Error loading books", Toast.LENGTH_SHORT).show()
-                );
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int cube = getIntent().getIntExtra("selectedCube", -1);
+        if (cube != -1 && bookAdapter != null) fetchBooksFromCube(cube);
     }
 
-    private void fetchBooksFromFirestore() {
-        firestore.collection("books").get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        bookList = task.getResult().toObjects(Book.class);
-                        bookAdapter = new BookAdapter(MainActivity.this, bookList);
-                        recyclerView.setAdapter(bookAdapter);
-                    } else {
-                        Log.e("Firestore", "Error fetching books", task.getException());
-                    }
-                });
+    private void fetchBooksFromCube(int cubeNumber) {
+        new BookRepository().getBooks(cubeNumber)
+                .addOnSuccessListener(books -> {
+                    bookList.clear(); bookList.addAll(books);
+                    bookAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this,
+                        "Error loading books: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 }

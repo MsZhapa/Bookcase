@@ -49,6 +49,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/lendingInfoTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_orange_dark"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/descriptionTextView"
@@ -117,6 +126,26 @@
         <Button android:id="@+id/editBookButton" android:text="Edit Book"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/lendBookButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lend Book" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Lending History"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <LinearLayout
+            android:id="@+id/lendingHistoryContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"/>
         <Button android:id="@+id/deleteBookButton" android:text="Delete Book"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

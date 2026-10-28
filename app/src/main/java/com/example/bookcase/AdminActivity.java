@@ -43,6 +43,7 @@ public class AdminActivity extends AppCompatActivity {
     private ImageView bookCoverImage;
     private String retrievedCoverUrl = "";
 
+    private boolean saving;
     private int retrievedPageCount = 0;
     private String retrievedIsbn = "";
     private StorageReference storageReference;
@@ -80,13 +81,12 @@ public class AdminActivity extends AppCompatActivity {
         Button addButton = findViewById(R.id.addButton);
         Button uploadImageButton = findViewById(R.id.uploadImageButton);
         findBookButton.setOnClickListener(v -> {
-            String isbn = isbnEditText.getText().toString()
-                    .replace("-", "")
-                    .replace(" ", "")
-                    .trim();
-
-            if (!isbn.matches("(\\d{13}|\\d{9}[\\dXx])")) {
-                isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 format");
+            String isbn;
+            try {
+                isbn = Isbn.normalize(isbnEditText.getText().toString());
+                if (isbn.isEmpty()) throw new IllegalArgumentException();
+            } catch (IllegalArgumentException invalid) {
+                isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 (including checksum)");
                 return;
             }
 
@@ -112,12 +112,20 @@ public class AdminActivity extends AppCompatActivity {
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cubeOptions);
         cubeSpinner.setAdapter(adapter);
+        // Only set the initial selection; Android restores user edits after recreation.
+        if (savedInstanceState == null) {
+            int selectedCube = getIntent().getIntExtra("selectedCube", -1);
+            if (selectedCube >= 1 && selectedCube <= cubeOptions.length) {
+                cubeSpinner.setSelection(selectedCube - 1);
+            }
+        }
 
         // Upload Image Button Click
         uploadImageButton.setOnClickListener(v -> openFileChooser());
 
         // Add Book Button Click
         addButton.setOnClickListener(v -> {
+            if (saving) return;
             if (titleEditText.getText().toString().trim().isEmpty()
                     || authorEditText.getText().toString().trim().isEmpty()
                     || descriptionEditText.getText().toString().trim().isEmpty()) {
@@ -125,6 +133,13 @@ public class AdminActivity extends AppCompatActivity {
                 return;
             }
 
+            try {
+                Isbn.normalize(isbnEditText.getText().toString());
+            } catch (IllegalArgumentException invalid) {
+                isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 (including checksum)");
+                return;
+            }
+            saving = true;
             if (imageUri != null) {
                 uploadImageToFirebase();
             } else {
@@ -377,9 +392,25 @@ public class AdminActivity extends AppCompatActivity {
             fileReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> fileReference.getDownloadUrl()
                             .addOnSuccessListener(uri -> saveBookToFirestore(uri.toString()))
-                            .addOnFailureListener(e -> Toast.makeText(AdminActivity.this, "Failed to get image URL", Toast.LENGTH_SHORT).show()))
-                    .addOnFailureListener(e -> Toast.makeText(AdminActivity.this, "Upload failed", Toast.LENGTH_SHORT).show());
+                            .addOnFailureListener(e -> { saving = false; Toast.makeText(AdminActivity.this, "Failed to get image URL", Toast.LENGTH_SHORT).show(); }))
+                    .addOnFailureListener(e -> { saving = false; Toast.makeText(AdminActivity.this, "Upload failed", Toast.LENGTH_SHORT).show(); });
         }
+    }
+    private void saveNewBook(FirebaseFirestore db, String bookId, Book book) {
+
+        new BookRepository(db).add(book)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(AdminActivity.this,
+                            "Book Added Successfully!",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    saving = false;
+                    Toast.makeText(AdminActivity.this,
+                            "Failed to add book",
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void saveBookToFirestore(String imageUrl) {
@@ -392,29 +423,73 @@ public class AdminActivity extends AppCompatActivity {
         int cubeLocation = cubeSpinner.getSelectedItemPosition() + 1; // Convert to cube number (1-8)
 
         if (title.isEmpty() || author.isEmpty() || description.isEmpty()) {
+            saving = false;
             Toast.makeText(this, "All fields must be filled!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // ✅ Ensure bookId is **generated** before adding to Firestore
-        String bookId = FirebaseFirestore.getInstance().collection("books").document().getId();
+        String bookId = FirebaseFirestore.getInstance().collection("bookCopies").document().getId();
 
         // ✅ Create a **Book object** with the generated ID
         Book book = new Book(bookId, title, author, description, finalImageUrl, isRead, progress, cubeLocation);
-        book.setIsbn(retrievedIsbn.isEmpty()
-                ? isbnEditText.getText().toString().trim()
-                : retrievedIsbn);
+        try {
+            book.setIsbn(Isbn.normalize(isbnEditText.getText().toString()));
+        } catch (IllegalArgumentException invalid) {
+            saving = false;
+            isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 (including checksum)");
+            return;
+        }
 
         book.setPageCount(retrievedPageCount);
 
         // ✅ Store the book in Firestore using its unique ID
-        FirebaseFirestore.getInstance().collection("books").document(bookId)
-                .set(book)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(AdminActivity.this, "Book Added Successfully!", Toast.LENGTH_SHORT).show();
-                    finish();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String isbn = book.getIsbn();
+
+        if (isbn == null || isbn.isEmpty()) {
+            // No ISBN: save normally
+            saveNewBook(db, bookId, book);
+            return;
+        }
+
+        new BookRepository(db).getBooks(null)
+                .addOnSuccessListener(querySnapshot -> {
+
+                    Book existingCopy = querySnapshot.stream()
+                            .filter(existing -> Isbn.equivalent(isbn, existing.getIsbn()))
+                            .findFirst().orElse(null);
+                    if (existingCopy == null) {
+                        // No duplicate found
+                        saveNewBook(db, bookId, book);
+
+                    } else {
+                        // Existing ISBN found
+                        new androidx.appcompat.app.AlertDialog.Builder(AdminActivity.this)
+                                .setTitle("Book already exists")
+                                .setMessage("You already own a copy of this edition. Would you like to add another physical copy?")
+                                .setPositiveButton("Add Another Copy", (dialog, which) -> {
+                                    saveNewBook(db, bookId, book);
+                                })
+                                .setNeutralButton("View Existing", (dialog, which) -> {
+                                    saving = false;
+                                    Intent intent = new Intent(AdminActivity.this, BookDetailActivity.class);
+                                    intent.putExtra("bookId", existingCopy.getId());
+                                    intent.putExtra("normalizedCopy", existingCopy.isNormalizedCopy());
+                                    startActivity(intent);
+                                })
+                                .setNegativeButton("Cancel", (dialog, which) -> saving = false)
+                                .setOnCancelListener(dialog -> saving = false)
+                                .show();
+                    }
                 })
-                .addOnFailureListener(e -> Toast.makeText(AdminActivity.this, "Failed to add book", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    saving = false;
+                    Toast.makeText(AdminActivity.this,
+                            "Could not check for duplicates. Please try again.",
+                            Toast.LENGTH_LONG).show();
+                });
     }
 
 }
