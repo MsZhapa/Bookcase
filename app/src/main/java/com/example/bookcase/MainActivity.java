@@ -46,7 +46,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(bookAdapter);
 
         searchView = findViewById(R.id.bookSearch);
+        TextView searchInput = searchView.findViewById(
+                getResources().getIdentifier("search_src_text", "id", "android"));
+        if (searchInput != null) {
+            searchInput.setTextColor(android.graphics.Color.rgb(33, 33, 33));
+            searchInput.setHintTextColor(android.graphics.Color.rgb(97, 97, 97));
+        }
         searchStatus = findViewById(R.id.searchStatus);
+        searchStatus.setTextColor(android.graphics.Color.rgb(33, 33, 33));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             public boolean onQueryTextSubmit(String query) { searchView.clearFocus(); return true; }
             public boolean onQueryTextChange(String query) { applySearch(); return true; }
