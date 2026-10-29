@@ -36,6 +36,16 @@
         android:layout_weight="1" />
 
     <ImageButton
+        android:id="@+id/searchBooksButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_search"
+        android:tint="@android:color/white"
+        android:contentDescription="@string/search_books_hint"
+        android:visibility="gone" />
+
+    <ImageButton
         android:id="@+id/addBookToCubeButton"
         android:layout_width="48dp"
         android:layout_height="48dp"

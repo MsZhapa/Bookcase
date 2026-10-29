@@ -13,10 +13,23 @@ android:orientation="vertical"
 android:padding="16dp"
 android:background="@color/white">
 
+<SearchView
+    android:id="@+id/bookSearch"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:iconifiedByDefault="false"
+    android:queryHint="@string/search_books_hint" />
+<TextView
+    android:id="@+id/searchStatus"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityLiveRegion="polite" />
 <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/recyclerView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
     android:padding="8dp"/>
 </LinearLayout>
 </LinearLayout>

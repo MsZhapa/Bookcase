@@ -12,4 +12,9 @@
     </string-array>
 
     <string name="add_book_to_cube">Add book to this cube</string>
+    <string name="search_books_hint">Search title, author or ISBN</string>
+    <string name="loading_books">Loading books…</string>
+    <string name="loading_books_failed">Could not load books. Reopen this screen to retry.</string>
+    <string name="no_matching_books">No matching books</string>
+    <string name="search_count">%1$d of %2$d copies</string>
 </resources>

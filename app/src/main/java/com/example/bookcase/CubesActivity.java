@@ -21,6 +21,9 @@ public class CubesActivity extends AppCompatActivity {
         ImageView backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> finish());
 
+        findViewById(R.id.searchBooksButton).setVisibility(android.view.View.VISIBLE);
+        findViewById(R.id.searchBooksButton).setOnClickListener(v -> openMainActivity(-1));
+
         // Example: If Cube 1 button is clicked
         findViewById(R.id.cube1Button).setOnClickListener(v -> openMainActivity(1));
         findViewById(R.id.cube2Button).setOnClickListener(v -> openMainActivity(2));
@@ -35,6 +38,7 @@ public class CubesActivity extends AppCompatActivity {
     private void openMainActivity(int cubeNumber) {
         Intent intent = new Intent(CubesActivity.this, MainActivity.class);
         intent.putExtra("selectedCube", cubeNumber);
+        intent.putExtra("openSearch", cubeNumber == -1);
         startActivity(intent);
     }
 }

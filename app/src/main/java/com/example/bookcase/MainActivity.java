@@ -3,25 +3,26 @@ package com.example.bookcase;
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.View;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SearchView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BookAdapter bookAdapter;
-    private FirebaseFirestore firestore;
     private List<Book> bookList = new ArrayList<>();
+
+    private final List<Book> allBooks = new ArrayList<>();
+    private SearchView searchView;
+    private TextView searchStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 🏷️ Set Screen Title
         TextView screenTitle = findViewById(R.id.screenTitle);
-        screenTitle.setText("Book List");
+        screenTitle.setText(getIntent().getIntExtra("selectedCube", -1) == -1
+                ? "All books" : "Cube " + getIntent().getIntExtra("selectedCube", -1));
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
@@ -39,10 +41,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        firestore = FirebaseFirestore.getInstance();
         bookList = new ArrayList<>();
         bookAdapter = new BookAdapter(this, bookList);
         recyclerView.setAdapter(bookAdapter);
+
+        searchView = findViewById(R.id.bookSearch);
+        searchStatus = findViewById(R.id.searchStatus);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextSubmit(String query) { searchView.clearFocus(); return true; }
+            public boolean onQueryTextChange(String query) { applySearch(); return true; }
+        });
+        findViewById(R.id.searchBooksButton).setVisibility(View.VISIBLE);
+        findViewById(R.id.searchBooksButton).setOnClickListener(v -> showSearch());
+        if (savedInstanceState != null) {
+            searchView.setQuery(savedInstanceState.getString("search", ""), false);
+            if (savedInstanceState.getBoolean("searchVisible")) showSearch();
+        } else if (getIntent().getBooleanExtra("openSearch", false)) {
+            showSearch();
+        }
 
         // 🔥 Get selectedCube from Intent
         int selectedCube = getIntent().getIntExtra("selectedCube", -1);
@@ -55,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("selectedCube", selectedCube);
                 startActivity(intent);
             });
-        } else {
-            Toast.makeText(this, "No cube selected!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -64,16 +78,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         int cube = getIntent().getIntExtra("selectedCube", -1);
-        if (cube != -1 && bookAdapter != null) fetchBooksFromCube(cube);
+        if (bookAdapter != null) fetchBooksFromCube(cube);
     }
 
     private void fetchBooksFromCube(int cubeNumber) {
-        new BookRepository().getBooks(cubeNumber)
+        searchStatus.setText(R.string.loading_books);
+        new BookRepository().getBooks(cubeNumber == -1 ? null : cubeNumber)
                 .addOnSuccessListener(books -> {
-                    bookList.clear(); bookList.addAll(books);
-                    bookAdapter.notifyDataSetChanged();
+                    allBooks.clear(); allBooks.addAll(books);
+                    applySearch();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this,
-                        "Error loading books: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                .addOnFailureListener(e -> {
+                    searchStatus.setText(R.string.loading_books_failed);
+                    Toast.makeText(this, "Error loading books: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+    }
+    private void showSearch() {
+        searchView.setVisibility(View.VISIBLE);
+        searchView.requestFocus();
+        searchView.post(() -> {
+            android.view.inputmethod.InputMethodManager keyboard =
+                    (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            keyboard.showSoftInput(searchView.findFocus(), android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+        });
+    }
+
+    private void applySearch() {
+        bookList.clear();
+        bookList.addAll(BookSearch.filter(allBooks, searchView.getQuery().toString()));
+        bookAdapter.notifyDataSetChanged();
+        searchStatus.setText(bookList.isEmpty() ? getString(R.string.no_matching_books)
+                : getString(R.string.search_count, bookList.size(), allBooks.size()));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        state.putBoolean("searchVisible", searchView.getVisibility() == View.VISIBLE);
+        state.putString("search", searchView.getQuery().toString());
+        super.onSaveInstanceState(state);
     }
 }
