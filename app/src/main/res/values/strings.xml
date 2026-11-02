@@ -17,4 +17,25 @@
     <string name="loading_books_failed">Could not load books. Reopen this screen to retry.</string>
     <string name="no_matching_books">No matching books</string>
     <string name="search_count">%1$d of %2$d copies</string>
+
+    <string name="copy_location">Cube %1$d · %2$s</string>
+    <string name="copy_position">Position %1$d</string>
+    <string name="position_unknown">Position not recorded</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_unread">Unread</string>
+    <string name="status_progress">In progress · %1$d%%</string>
+    <string name="filter_status">Filter by reading or lending status</string>
+    <string-array name="reading_filters">
+        <item>All books</item><item>Unread</item><item>In progress</item><item>Finished</item><item>Lent out</item>
+    </string-array>
+    <string name="scan_isbn">Scan ISBN barcode</string>
+    <string name="scan_ready">ISBN scanned. Tap Find Book to look up its details.</string>
+    <string name="scan_invalid">That barcode is not a valid book ISBN. Try the 978 or 979 barcode.</string>
+    <string name="scan_failed">Scanner unavailable. Check Google Play services and your connection, or enter the ISBN manually.</string>
+    <string name="export_library">Export library</string>
+    <string name="export_description">Save your complete catalogue as a JSON file, including each copy’s location, reading status and cover link. Image files and lending history are not included.</string>
+    <string name="export_save">Choose where to save</string>
+    <string name="export_working">Exporting library…</string>
+    <string name="export_success">Exported %1$d copies</string>
+    <string name="export_failed">Export failed. No complete backup was saved. Please try again.</string>
 </resources>

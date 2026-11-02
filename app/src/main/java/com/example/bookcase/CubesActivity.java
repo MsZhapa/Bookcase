@@ -24,6 +24,9 @@ public class CubesActivity extends AppCompatActivity {
         findViewById(R.id.searchBooksButton).setVisibility(android.view.View.VISIBLE);
         findViewById(R.id.searchBooksButton).setOnClickListener(v -> openMainActivity(-1));
 
+        findViewById(R.id.exportLibraryButton).setOnClickListener(v ->
+                startActivity(new Intent(this, LibraryExportActivity.class)));
+
         // Example: If Cube 1 button is clicked
         findViewById(R.id.cube1Button).setOnClickListener(v -> openMainActivity(1));
         findViewById(R.id.cube2Button).setOnClickListener(v -> openMainActivity(2));

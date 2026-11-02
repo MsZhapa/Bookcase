@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private final List<Book> allBooks = new ArrayList<>();
     private SearchView searchView;
     private TextView searchStatus;
+    private BookFilters.Status status = BookFilters.Status.ALL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,25 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             public boolean onQueryTextSubmit(String query) { searchView.clearFocus(); return true; }
             public boolean onQueryTextChange(String query) { applySearch(); return true; }
+        });
+        android.widget.Spinner filter = findViewById(R.id.statusFilter);
+        android.widget.ArrayAdapter<CharSequence> filters = android.widget.ArrayAdapter.createFromResource(
+                this, R.array.reading_filters, R.layout.filter_item);
+        filters.setDropDownViewResource(R.layout.filter_item);
+        filter.setAdapter(filters);
+        if (savedInstanceState != null) {
+            int selected = savedInstanceState.getInt("statusFilter", 0);
+            if (selected >= 0 && selected < BookFilters.Status.values().length) {
+                status = BookFilters.Status.values()[selected];
+                filter.setSelection(selected);
+            }
+        }
+        filter.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                status = BookFilters.Status.values()[position];
+                applySearch();
+            }
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
         findViewById(R.id.searchBooksButton).setVisibility(View.VISIBLE);
         findViewById(R.id.searchBooksButton).setOnClickListener(v -> showSearch());
@@ -112,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void applySearch() {
         bookList.clear();
-        bookList.addAll(BookSearch.filter(allBooks, searchView.getQuery().toString()));
+        bookList.addAll(BookFilters.filter(BookSearch.filter(allBooks, searchView.getQuery().toString()), status));
         bookAdapter.notifyDataSetChanged();
         searchStatus.setText(bookList.isEmpty() ? getString(R.string.no_matching_books)
                 : getString(R.string.search_count, bookList.size(), allBooks.size()));
@@ -120,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle state) {
+        state.putInt("statusFilter", status.ordinal());
         state.putBoolean("searchVisible", searchView.getVisibility() == View.VISIBLE);
         state.putString("search", searchView.getQuery().toString());
         super.onSaveInstanceState(state);

@@ -92,6 +92,7 @@ public class AdminActivity extends AppCompatActivity {
 
             lookupBookByIsbn(isbn);
         });
+        findViewById(R.id.scanIsbnButton).setOnClickListener(v -> scanIsbn());
         bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // ✅ Update progress percentage when SeekBar changes
@@ -146,6 +147,29 @@ public class AdminActivity extends AppCompatActivity {
                 saveBookToFirestore(retrievedCoverUrl);
             }
         });
+    }
+
+    private void scanIsbn() {
+        android.view.View button = findViewById(R.id.scanIsbnButton);
+        button.setEnabled(false);
+        com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions options =
+                new com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions.Builder()
+                        .setBarcodeFormats(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_EAN_13)
+                        .enableAutoZoom().build();
+        com.google.mlkit.vision.codescanner.GmsBarcodeScanning.getClient(this, options).startScan()
+                .addOnSuccessListener(barcode -> {
+                    try {
+                        String isbn = Isbn.normalize(barcode.getRawValue());
+                        if (isbn.isEmpty()) throw new IllegalArgumentException();
+                        isbnEditText.setText(isbn);
+                        isbnEditText.setError(null);
+                        Toast.makeText(this, R.string.scan_ready, Toast.LENGTH_LONG).show();
+                    } catch (IllegalArgumentException invalid) {
+                        Toast.makeText(this, R.string.scan_invalid, Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, R.string.scan_failed, Toast.LENGTH_LONG).show())
+                .addOnCompleteListener(task -> button.setEnabled(true));
     }
 
     // Opens file chooser to pick an image

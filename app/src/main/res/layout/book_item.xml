@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@android:color/holo_green_dark"
+            android:textColor="#33691E"
             android:layout_marginTop="4dp"/>
 
         <!-- Progress Bar (Visible if book is not read) -->

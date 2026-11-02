@@ -46,6 +46,15 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             holder.authorTextView.setText("by " + book.getAuthor());
         }
 
+        holder.locationTextView.setText(context.getString(R.string.copy_location,
+                book.getLocation(), book.getPosition() > 0
+                        ? context.getString(R.string.copy_position, book.getPosition())
+                        : context.getString(R.string.position_unknown)));
+        holder.readStatusTextView.setText(BookFilters.finished(book)
+                ? context.getString(R.string.status_finished)
+                : book.getProgress() > 0 ? context.getString(R.string.status_progress, book.getProgress())
+                : context.getString(R.string.status_unread));
+
         // Load image using Glide
         if (holder.bookImageView != null) {
             Glide.with(context)
@@ -69,13 +78,15 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, authorTextView, lendingStatusTextView;
+        TextView titleTextView, authorTextView, lendingStatusTextView, locationTextView, readStatusTextView;
         ImageView bookImageView;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
 
             // Ensure these IDs match those in item_book.xml
+            locationTextView = itemView.findViewById(R.id.locationTextView);
+            readStatusTextView = itemView.findViewById(R.id.readStatusTextView);
             titleTextView = itemView.findViewById(R.id.titleTextView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
             bookImageView = itemView.findViewById(R.id.bookImageView);

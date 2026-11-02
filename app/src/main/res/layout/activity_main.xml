@@ -20,6 +20,12 @@ android:background="@color/white">
     android:layout_height="wrap_content"
     android:iconifiedByDefault="false"
     android:queryHint="@string/search_books_hint" />
+<Spinner
+    android:id="@+id/statusFilter"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:backgroundTint="#616161"
+    android:contentDescription="@string/filter_status" />
 <TextView
     android:id="@+id/searchStatus"
     android:layout_width="match_parent"
