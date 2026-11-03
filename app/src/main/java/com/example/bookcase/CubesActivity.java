@@ -27,6 +27,11 @@ public class CubesActivity extends AppCompatActivity {
         findViewById(R.id.exportLibraryButton).setOnClickListener(v ->
                 startActivity(new Intent(this, LibraryExportActivity.class)));
 
+        findViewById(R.id.readingOverviewButton).setOnClickListener(v ->
+                startActivity(new Intent(this, ReadingOverviewActivity.class)));
+        findViewById(R.id.loansOverviewButton).setOnClickListener(v ->
+                startActivity(new Intent(this, LoansActivity.class)));
+
         // Example: If Cube 1 button is clicked
         findViewById(R.id.cube1Button).setOnClickListener(v -> openMainActivity(1));
         findViewById(R.id.cube2Button).setOnClickListener(v -> openMainActivity(2));

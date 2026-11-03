@@ -15,10 +15,15 @@ import java.util.List;
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
     private List<Book> bookList;
     private Context context;
+    private boolean showLoanDetails;
 
     public BookAdapter(Context context, List<Book> bookList) {
         this.context = context;
         this.bookList = bookList;
+    }
+
+    public BookAdapter(Context context, List<Book> books, boolean showLoanDetails) {
+        this(context, books); this.showLoanDetails = showLoanDetails;
     }
 
     @NonNull
@@ -55,6 +60,22 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                 : book.getProgress() > 0 ? context.getString(R.string.status_progress, book.getProgress())
                 : context.getString(R.string.status_unread));
 
+        holder.loanInfoTextView.setVisibility(showLoanDetails ? View.VISIBLE : View.GONE);
+        if (showLoanDetails) {
+            String borrower = book.getBorrowerName();
+            if (borrower == null || borrower.trim().isEmpty()) borrower = context.getString(R.string.borrower_unknown);
+            long now = System.currentTimeMillis();
+            java.util.TimeZone zone = java.util.TimeZone.getDefault();
+            boolean overdue = LoanRules.overdue(book, now, zone);
+            String due = book.getDueDate() == null ? context.getString(R.string.no_due_date)
+                    : context.getString(R.string.loan_due,
+                            android.text.format.DateFormat.getDateFormat(context).format(book.getDueDate().toDate()));
+            if (overdue) due += " · " + context.getString(R.string.loan_overdue);
+            else if (LoanRules.dueToday(book, now, zone)) due += " · " + context.getString(R.string.loan_due_today);
+            holder.loanInfoTextView.setText(context.getString(R.string.loan_borrower, borrower) + "\n" + due);
+            holder.loanInfoTextView.setTextColor(android.graphics.Color.parseColor(overdue ? "#B71C1C" : "#424242"));
+        }
+
         // Load image using Glide
         if (holder.bookImageView != null) {
             Glide.with(context)
@@ -78,13 +99,14 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, authorTextView, lendingStatusTextView, locationTextView, readStatusTextView;
+        TextView titleTextView, authorTextView, lendingStatusTextView, locationTextView, readStatusTextView, loanInfoTextView;
         ImageView bookImageView;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
 
             // Ensure these IDs match those in item_book.xml
+            loanInfoTextView = itemView.findViewById(R.id.loanInfoTextView);
             locationTextView = itemView.findViewById(R.id.locationTextView);
             readStatusTextView = itemView.findViewById(R.id.readStatusTextView);
             titleTextView = itemView.findViewById(R.id.titleTextView);

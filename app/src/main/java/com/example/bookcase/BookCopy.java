@@ -15,6 +15,9 @@ public class BookCopy {
     private Timestamp dueDate;
     private boolean read;
     private int progress;
+    private String notes = "";
+    public String getNotes() { return notes == null ? "" : notes; }
+    public void setNotes(String value) { notes = value; }
     public BookCopy() {}
     public BookCopy(String id, String editionId, int cubeNumber, long position) {
         this.id = id; this.editionId = editionId; this.cubeNumber = cubeNumber; this.position = position;

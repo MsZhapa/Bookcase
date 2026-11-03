@@ -39,6 +39,8 @@ public class BookRepository {
             Book book = new Book(doc.getId(), edition.getTitle(), edition.getAuthor(),
                     edition.getDescription(), edition.getImageUrl(), copy.isRead(),
                     copy.getProgress(), copy.getCubeNumber());
+            book.setNotes(copy.getNotes());
+            book.setLentDate(copy.getLentDate()); book.setDueDate(copy.getDueDate());
             book.setIsbn(edition.getIsbn()); book.setPageCount(edition.getPageCount());
             book.setLendingStatus(copy.getLendingStatus()); book.setBorrowerName(copy.getBorrowerName());
             book.setPosition(copy.getPosition()); book.setNormalizedCopy(true);
@@ -65,6 +67,17 @@ public class BookRepository {
             });
         });
     }
+    /** Only the selected physical-copy document is updated; catalog and positions stay untouched. */
+    public Task<Void> saveNotes(String id, boolean normalized, String expected, String text) {
+        DocumentReference ref = copyRef(id, normalized);
+        return db.runTransaction(tx -> {
+            DocumentSnapshot current = tx.get(ref);
+            if (!current.exists()) throw new IllegalStateException("Copy no longer exists");
+            tx.update(ref, NoteUpdate.fields(current.getString("notes"), expected, text));
+            return null;
+        });
+    }
+
     private long nextPosition(DocumentSnapshot counter) {
         Long last = counter.getLong("lastPosition");
         return Math.addExact(last == null ? 0 : last, 1);

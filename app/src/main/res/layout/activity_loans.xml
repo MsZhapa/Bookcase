@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#FFFFFF">
+    <include layout="@layout/toolbar_layout" />
+
+    <CheckBox android:id="@+id/overdueOnly" android:layout_width="match_parent" android:layout_height="48dp"
+        android:paddingHorizontal="16dp" android:text="@string/overdue_only" android:textColor="#212121" />
+    <TextView android:id="@+id/loansStatus" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="16dp" android:textColor="#212121" android:accessibilityLiveRegion="polite" />
+    <TextView android:id="@+id/loansEmpty" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp" android:textColor="#424242" />
+    <Button android:id="@+id/loansRetry" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="@string/retry_load" android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/loanList" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" android:padding="16dp" />
+</LinearLayout>

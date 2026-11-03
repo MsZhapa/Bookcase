@@ -75,6 +75,11 @@ public class BookDetailActivity extends AppCompatActivity {
             return;
         }
 
+        findViewById(R.id.personalNotesButton).setOnClickListener(v -> {
+            Intent notes = new Intent(this, CopyNotesActivity.class);
+            notes.putExtra("bookId", bookId); notes.putExtra("normalizedCopy", normalizedCopy);
+            startActivity(notes);
+        });
         // Fetch book details
         loadBookDetails();
         loadLendingHistory();
@@ -130,6 +135,8 @@ public class BookDetailActivity extends AppCompatActivity {
                             } else {
                                 lendingInfoTextView.setVisibility(View.GONE);
                             }
+                            ((TextView)findViewById(R.id.personalNotesPreview)).setText(
+                                    book.getNotes().isEmpty() ? getString(R.string.no_personal_notes) : book.getNotes());
                             titleTextView.setText(book.getTitle());
                             authorTextView.setText("by " + book.getAuthor());
                             locationTextView.setText("Current Cube: " + book.getLocation()

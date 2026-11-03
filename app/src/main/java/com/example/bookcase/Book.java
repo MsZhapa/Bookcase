@@ -20,6 +20,11 @@ public class Book {
     private int progress;
     private int location;
 
+    private com.google.firebase.Timestamp lentDate, dueDate;
+    public com.google.firebase.Timestamp getLentDate() { return lentDate; }
+    public void setLentDate(com.google.firebase.Timestamp value) { lentDate = value; }
+    public com.google.firebase.Timestamp getDueDate() { return dueDate; }
+    public void setDueDate(com.google.firebase.Timestamp value) { dueDate = value; }
     private long position;
     private String borrowerName;
     private boolean normalizedCopy;
@@ -33,6 +38,9 @@ public class Book {
     public void setNormalizedCopy(boolean value) { normalizedCopy = value; }
 
     // Required for Firestore deserialization
+    private String notes = "";
+    public String getNotes() { return notes == null ? "" : notes; }
+    public void setNotes(String value) { notes = value; }
     public Book() {}
 
     public Book(String id, String title, String author,

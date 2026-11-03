@@ -64,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
                 this, R.array.reading_filters, R.layout.filter_item);
         filters.setDropDownViewResource(R.layout.filter_item);
         filter.setAdapter(filters);
-        if (savedInstanceState != null) {
-            int selected = savedInstanceState.getInt("statusFilter", 0);
+        {
+            int selected = savedInstanceState != null ? savedInstanceState.getInt("statusFilter", 0)
+                    : getIntent().getIntExtra("statusFilter", 0);
             if (selected >= 0 && selected < BookFilters.Status.values().length) {
                 status = BookFilters.Status.values()[selected];
                 filter.setSelection(selected);

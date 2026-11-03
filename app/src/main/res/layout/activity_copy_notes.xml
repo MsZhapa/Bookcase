@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#FFFFFF">
+    <include layout="@layout/toolbar_layout" />
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+        <TextView android:id="@+id/notesCopyLabel" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:paddingBottom="12dp"
+            android:textColor="#212121" android:textStyle="bold" android:textSize="17sp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/notes_explanation" android:textColor="#424242" android:textSize="16sp" />
+        <EditText android:id="@+id/notesEditor" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:minHeight="240dp" android:gravity="top" android:inputType="textMultiLine|textCapSentences"
+            android:maxLength="20000" android:importantForAutofill="no" android:hint="@string/notes_hint" android:textColor="#212121"
+            android:textColorHint="#616161" android:backgroundTint="#616161" android:enabled="false" />
+        <TextView android:id="@+id/notesStatus" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#424242" android:accessibilityLiveRegion="polite" />
+        <Button android:id="@+id/saveNotesButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/save_notes" android:enabled="false" />
+        <Button android:id="@+id/reloadNotesButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/reload_notes" />
+    </LinearLayout></ScrollView>
+</LinearLayout>
