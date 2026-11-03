@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,18 +37,16 @@ public class AdminActivity extends AppCompatActivity {
 
     private EditText titleEditText, authorEditText, descriptionEditText, isbnEditText;
     private CheckBox readCheckBox;
-    private SeekBar progressSeekBar;
+    private PageProgressForm pageForm;
     private Spinner cubeSpinner;
     private ImageView bookCoverImage;
     private String retrievedCoverUrl = "";
 
     private boolean saving;
-    private int retrievedPageCount = 0;
     private String retrievedIsbn = "";
     private StorageReference storageReference;
     private Uri imageUri; // Stores the selected image
 
-    private TextView adminProgressPercentage;
     private static final int PICK_IMAGE_REQUEST = 1;
 
     @Override
@@ -75,8 +72,9 @@ public class AdminActivity extends AppCompatActivity {
         authorEditText = findViewById(R.id.authorEditText);
         descriptionEditText = findViewById(R.id.descriptionEditText);
         readCheckBox = findViewById(R.id.readCheckBox);
-        progressSeekBar = findViewById(R.id.adminProgressBar);
-        adminProgressPercentage = findViewById(R.id.adminProgressPercentage); // ✅ Initialize TextView
+        pageForm = new PageProgressForm(findViewById(android.R.id.content), readCheckBox);
+        Book newBook = new Book(); newBook.setCurrentPage(0);
+        pageForm.bind(newBook); pageForm.restore(savedInstanceState);
         cubeSpinner = findViewById(R.id.cubeSpinner);
         Button addButton = findViewById(R.id.addButton);
         Button uploadImageButton = findViewById(R.id.uploadImageButton);
@@ -95,23 +93,10 @@ public class AdminActivity extends AppCompatActivity {
         findViewById(R.id.scanIsbnButton).setOnClickListener(v -> scanIsbn());
         bookCoverImage = findViewById(R.id.bookCoverImage);
 
-        // ✅ Update progress percentage when SeekBar changes
-        progressSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                adminProgressPercentage.setText(progress + "%"); // ✅ Update TextView with progress percentage
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
         // Load Cube Options in Spinner
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cubeOptions);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.filter_item, cubeOptions);
+        adapter.setDropDownViewResource(R.layout.filter_item);
         cubeSpinner.setAdapter(adapter);
         // Only set the initial selection; Android restores user edits after recreation.
         if (savedInstanceState == null) {
@@ -140,6 +125,7 @@ public class AdminActivity extends AppCompatActivity {
                 isbnEditText.setError("Enter a valid ISBN-10 or ISBN-13 (including checksum)");
                 return;
             }
+            if (!pageForm.apply(new Book())) return;
             saving = true;
             if (imageUri != null) {
                 uploadImageToFirebase();
@@ -176,7 +162,6 @@ public class AdminActivity extends AppCompatActivity {
 
     private void lookupBookByIsbn(String isbn) {
         retrievedCoverUrl = "";
-        retrievedPageCount = 0;
         retrievedIsbn = "";
 
         imageUri = null;
@@ -313,7 +298,7 @@ public class AdminActivity extends AppCompatActivity {
                 mainHandler.post(() -> {
 
                     // Store the ISBN and page count for saving to Firestore
-                    retrievedPageCount = pageCount;
+                    pageForm.lookupTotal(pageCount);
                     retrievedIsbn = isbn;
 
                     // Fill in the book information
@@ -443,7 +428,7 @@ public class AdminActivity extends AppCompatActivity {
         String description = descriptionEditText.getText().toString().trim();
         String finalImageUrl = (imageUrl != null) ? imageUrl : ""; // Ensure it's empty if no image is uploaded
         boolean isRead = readCheckBox.isChecked();
-        int progress = progressSeekBar.getProgress();
+        int progress = 0;
         int cubeLocation = cubeSpinner.getSelectedItemPosition() + 1; // Convert to cube number (1-8)
 
         if (title.isEmpty() || author.isEmpty() || description.isEmpty()) {
@@ -465,7 +450,8 @@ public class AdminActivity extends AppCompatActivity {
             return;
         }
 
-        book.setPageCount(retrievedPageCount);
+        if (!pageForm.apply(book)) { saving = false; return; }
+        book.setPageCount(book.getReadingPageCount()==null ? 0 : book.getReadingPageCount());
 
         // ✅ Store the book in Firestore using its unique ID
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -514,6 +500,10 @@ public class AdminActivity extends AppCompatActivity {
                             "Could not check for duplicates. Please try again.",
                             Toast.LENGTH_LONG).show();
                 });
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        pageForm.save(state); super.onSaveInstanceState(state);
     }
 
 }

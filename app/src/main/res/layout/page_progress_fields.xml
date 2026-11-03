@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:orientation="vertical" android:paddingVertical="12dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:labelFor="@id/currentPageInput"
+        android:text="@string/current_page" android:textColor="#212121" android:textSize="16sp" />
+    <EditText android:id="@+id/currentPageInput" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="48dp" android:inputType="number" android:maxLength="10" android:singleLine="true"
+        android:textColor="#212121" android:textColorHint="#616161"
+        android:backgroundTint="#616161" android:importantForAutofill="no" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:labelFor="@id/totalPagesInput"
+        android:text="@string/total_pages" android:textColor="#212121" android:textSize="16sp" />
+    <EditText android:id="@+id/totalPagesInput" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="48dp" android:inputType="number" android:maxLength="10" android:singleLine="true"
+        android:textColor="#212121" android:textColorHint="#616161"
+        android:backgroundTint="#616161" android:importantForAutofill="no" />
+    <TextView android:id="@+id/calculatedProgress" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="#212121" android:textSize="16sp" android:accessibilityLiveRegion="polite" />
+</LinearLayout>

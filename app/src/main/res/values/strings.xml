@@ -77,4 +77,23 @@
     <string name="status_in_progress">In progress</string>
     <string name="status_lent">Lent out</string>
     <string name="all_copies">All copies</string>
+
+    <string name="library_menu">Library menu</string>
+    <string name="select_cube">Select a cube</string>
+    <string name="update_reading_progress">Update reading progress</string>
+    <string name="current_page">Current page</string>
+    <string name="current_page_hint">Page reached (0 if not started)</string>
+    <string name="total_pages">Total pages</string>
+    <string name="total_pages_hint">Enter if not already known</string>
+    <string name="page_progress_help">Enter the page you reached and the total pages. Your percentage is calculated automatically.</string>
+    <string name="legacy_percentage">%1$d%% saved. Enter your current page to switch to page tracking.</string>
+    <string name="calculated_percentage">%1$d%%</string>
+    <string name="page_status">Page %1$d of %2$d · %3$d%%</string>
+    <string name="page_status_unknown">Page %1$d · Total pages not set</string>
+    <string name="finished_reading">Finished reading</string>
+    <string name="save_progress">Save progress</string>
+    <string name="saving_progress">Saving progress…</string>
+    <string name="progress_save_failed">Could not save progress. Please try again.</string>
+    <string name="enter_current_page">Enter your current page to see the percentage.</string>
+    <string name="finished_progress">Finished · 100%</string>
 </resources>

@@ -13,6 +13,7 @@
         <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />
         <activity android:name=".ReadingOverviewActivity" android:exported="false" />
         <activity android:name=".LoansActivity" android:exported="false" />
+        <activity android:name=".ReadingProgressActivity" android:exported="false" />
         <activity android:name=".CopyNotesActivity" android:exported="false" />
         <activity android:name=".LibraryExportActivity" android:exported="false" />
         <activity

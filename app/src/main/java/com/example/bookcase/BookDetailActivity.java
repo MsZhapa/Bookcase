@@ -80,6 +80,12 @@ public class BookDetailActivity extends AppCompatActivity {
             notes.putExtra("bookId", bookId); notes.putExtra("normalizedCopy", normalizedCopy);
             startActivity(notes);
         });
+        readCheckBox.setClickable(false); readCheckBox.setFocusable(false);
+        findViewById(R.id.updateReadingProgressButton).setOnClickListener(v -> {
+            Intent progress=new Intent(this,ReadingProgressActivity.class);
+            progress.putExtra("bookId",bookId); progress.putExtra("normalizedCopy",normalizedCopy);
+            startActivity(progress);
+        });
         // Fetch book details
         loadBookDetails();
         loadLendingHistory();
@@ -143,7 +149,8 @@ public class BookDetailActivity extends AppCompatActivity {
                                     + (book.getPosition() > 0 ? " · Position: " + book.getPosition() : ""));
                             descriptionTextView.setText(book.getDescription());
 
-                            boolean isRead = book.isRead();
+                            ((TextView)findViewById(R.id.pageProgressSummary)).setText(PageProgressForm.describe(this,book));
+                            boolean isRead = BookFilters.finished(book);
                             readCheckBox.setChecked(isRead);
 
                             int progress = book.getProgress();

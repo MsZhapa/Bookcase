@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,9 +24,9 @@ public class EditBookActivity extends AppCompatActivity {
     private EditText editTitle, editAuthor, editDescription;
     private CheckBox editReadCheckBox;
 
-    private TextView editProgressPercentage;
+    private PageProgressForm pageForm;
+    private Bundle restoredProgress;
 
-    private SeekBar editProgressBar;
     private Spinner cubeSpinner;
     private Button saveButton;
     private ImageView bookCoverImage;
@@ -52,11 +51,11 @@ public class EditBookActivity extends AppCompatActivity {
 
         // Initialize Views
         editTitle = findViewById(R.id.editTitle);
-        editProgressPercentage = findViewById(R.id.editProgressPercentage); // ✅ Initialize Percentage TextView
         editAuthor = findViewById(R.id.editAuthor);
         editDescription = findViewById(R.id.editDescription);
         editReadCheckBox = findViewById(R.id.editReadCheckBox);
-        editProgressBar = findViewById(R.id.editProgressBar);
+        pageForm = new PageProgressForm(findViewById(android.R.id.content), editReadCheckBox);
+        restoredProgress = savedInstanceState;
         cubeSpinner = findViewById(R.id.cubeSpinner);
         saveButton = findViewById(R.id.saveButton);
         Button uploadImageButton = findViewById(R.id.uploadImageButton);
@@ -72,7 +71,8 @@ public class EditBookActivity extends AppCompatActivity {
 
         // Load Cube Options in Spinner
         String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cubeOptions);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.filter_item, cubeOptions);
+        adapter.setDropDownViewResource(R.layout.filter_item);
         cubeSpinner.setAdapter(adapter);
 
         // ✅ Get bookId from Intent
@@ -87,25 +87,12 @@ public class EditBookActivity extends AppCompatActivity {
         // ✅ Load book details from Firestore
         loadBookDetails();
 
-        // ✅ Update progress percentage when SeekBar changes
-        editProgressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                editProgressPercentage.setText(progress + "%"); // ✅ Update TextView with progress percentage
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
         // Upload Image Button
         uploadImageButton.setOnClickListener(v -> openFileChooser());
 
         // Save Button
         saveButton.setOnClickListener(v -> {
+            if (!pageForm.apply(loadedBook)) return;
             if (imageUri != null) {
                 uploadImageToFirebase();
             } else {
@@ -125,9 +112,7 @@ public class EditBookActivity extends AppCompatActivity {
                             editTitle.setText(book.getTitle());
                             editAuthor.setText(book.getAuthor());
                             editDescription.setText(book.getDescription());
-                            editReadCheckBox.setChecked(book.isRead());
-                            editProgressBar.setProgress(book.getProgress());
-                            editProgressPercentage.setText(book.getProgress() + "%"); // ✅ Set initial progress value
+                            pageForm.bind(book); pageForm.restore(restoredProgress); restoredProgress=null;
 
                             cubeSpinner.setSelection(book.getLocation() - 1);
 
@@ -178,13 +163,11 @@ public class EditBookActivity extends AppCompatActivity {
         String newAuthor = editAuthor.getText().toString();
         String newDescription = editDescription.getText().toString();
         String finalImageUrl = (imageUrl != null) ? imageUrl : loadedBook.getImageUrl();
-        boolean newIsRead = editReadCheckBox.isChecked();
-        int newProgress = editProgressBar.getProgress();
+        if (!pageForm.apply(loadedBook)) return;
         int newCubeLocation = cubeSpinner.getSelectedItemPosition() + 1;
 
         loadedBook.setTitle(newTitle); loadedBook.setAuthor(newAuthor);
         loadedBook.setDescription(newDescription); loadedBook.setImageUrl(finalImageUrl);
-        loadedBook.setRead(newIsRead); loadedBook.setProgress(newProgress);
         saveButton.setEnabled(false);
         new BookRepository(firestore).save(bookId, normalizedCopy, loadedBook, newCubeLocation)
                 .addOnSuccessListener(aVoid -> {
@@ -195,6 +178,10 @@ public class EditBookActivity extends AppCompatActivity {
                     saveButton.setEnabled(true);
                     Toast.makeText(EditBookActivity.this, "Failed to update book", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        if (loadedBook!=null) pageForm.save(state); super.onSaveInstanceState(state);
     }
 
 }

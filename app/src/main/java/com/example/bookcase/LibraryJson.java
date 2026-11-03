@@ -25,6 +25,7 @@ public final class LibraryJson {
                     + ",\"dueDateEpochMillis\":" + (b.getDueDate() == null ? "null" : b.getDueDate().toDate().getTime())
                     + ",\"cubeNumber\":" + b.getLocation() + ",\"position\":" + b.getPosition()
                     + ",\"read\":" + b.isRead() + ",\"progress\":" + b.getProgress()
+                    + ",\"currentPage\":" + b.getCurrentPage() + ",\"readingPageCount\":" + b.getReadingPageCount()
                     + ",\"lendingStatus\":" + quote(b.getLendingStatus())
                     + ",\"borrowerName\":" + quote(b.getBorrowerName()) + "}");
         }

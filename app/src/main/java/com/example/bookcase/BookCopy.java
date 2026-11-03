@@ -15,6 +15,12 @@ public class BookCopy {
     private Timestamp dueDate;
     private boolean read;
     private int progress;
+    private Integer currentPage;
+    private Integer readingPageCount;
+    public Integer getCurrentPage() { return currentPage; }
+    public void setCurrentPage(Integer value) { currentPage = value; }
+    public Integer getReadingPageCount() { return readingPageCount; }
+    public void setReadingPageCount(Integer value) { readingPageCount = value; }
     private String notes = "";
     public String getNotes() { return notes == null ? "" : notes; }
     public void setNotes(String value) { notes = value; }

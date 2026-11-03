@@ -1,0 +1,5 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/actionReadingOverview" android:title="@string/reading_overview" />
+    <item android:id="@+id/actionLoanOverview" android:title="@string/loans_overview" />
+    <item android:id="@+id/actionExportLibrary" android:title="@string/export_library" />
+</menu>

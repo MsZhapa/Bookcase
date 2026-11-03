@@ -15,7 +15,7 @@ public class CubesActivity extends AppCompatActivity {
 
         // 🏷️ Set Screen Title
         TextView screenTitle = findViewById(R.id.screenTitle);
-        screenTitle.setText("Select a Cube and find a book");
+        screenTitle.setText(R.string.select_cube);
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
@@ -24,13 +24,7 @@ public class CubesActivity extends AppCompatActivity {
         findViewById(R.id.searchBooksButton).setVisibility(android.view.View.VISIBLE);
         findViewById(R.id.searchBooksButton).setOnClickListener(v -> openMainActivity(-1));
 
-        findViewById(R.id.exportLibraryButton).setOnClickListener(v ->
-                startActivity(new Intent(this, LibraryExportActivity.class)));
-
-        findViewById(R.id.readingOverviewButton).setOnClickListener(v ->
-                startActivity(new Intent(this, ReadingOverviewActivity.class)));
-        findViewById(R.id.loansOverviewButton).setOnClickListener(v ->
-                startActivity(new Intent(this, LoansActivity.class)));
+        LibraryMenu.attach(this);
 
         // Example: If Cube 1 button is clicked
         findViewById(R.id.cube1Button).setOnClickListener(v -> openMainActivity(1));

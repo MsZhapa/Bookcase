@@ -18,6 +18,12 @@ public class Book {
     private String imageUrl;
     private boolean isRead = false;
     private int progress;
+    private Integer currentPage;
+    private Integer readingPageCount;
+    public Integer getCurrentPage() { return currentPage; }
+    public void setCurrentPage(Integer value) { currentPage = value; }
+    public Integer getReadingPageCount() { return readingPageCount; }
+    public void setReadingPageCount(Integer value) { readingPageCount = value; }
     private int location;
 
     private com.google.firebase.Timestamp lentDate, dueDate;

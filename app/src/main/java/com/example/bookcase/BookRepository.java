@@ -39,6 +39,7 @@ public class BookRepository {
             Book book = new Book(doc.getId(), edition.getTitle(), edition.getAuthor(),
                     edition.getDescription(), edition.getImageUrl(), copy.isRead(),
                     copy.getProgress(), copy.getCubeNumber());
+            book.setCurrentPage(copy.getCurrentPage()); book.setReadingPageCount(copy.getReadingPageCount());
             book.setNotes(copy.getNotes());
             book.setLentDate(copy.getLentDate()); book.setDueDate(copy.getDueDate());
             book.setIsbn(edition.getIsbn()); book.setPageCount(edition.getPageCount());
@@ -74,6 +75,15 @@ public class BookRepository {
             DocumentSnapshot current = tx.get(ref);
             if (!current.exists()) throw new IllegalStateException("Copy no longer exists");
             tx.update(ref, NoteUpdate.fields(current.getString("notes"), expected, text));
+            return null;
+        });
+    }
+
+    public Task<Void> saveReadingProgress(String id, boolean normalized, ReadingProgress.State state) {
+        DocumentReference ref = copyRef(id, normalized);
+        return db.runTransaction(tx -> {
+            if (!tx.get(ref).exists()) throw new IllegalStateException("Copy no longer exists");
+            tx.update(ref, state.fields(normalized));
             return null;
         });
     }
@@ -119,6 +129,7 @@ public class BookRepository {
             long position = nextPosition(count);
             BookCopy copy = new BookCopy(id, existingEditionId == null ? id : existingEditionId, book.getLocation(), position);
             copy.setRead(book.isRead()); copy.setProgress(book.getProgress());
+            copy.setCurrentPage(book.getCurrentPage()); copy.setReadingPageCount(book.getReadingPageCount());
             if (existingEditionId == null) {
                 tx.set(db.collection("works").document(id), work);
                 tx.set(db.collection("editions").document(id), edition);
@@ -153,6 +164,8 @@ public class BookRepository {
             if (edited != null) {
                 updates.put("read", edited.isRead());
                 updates.put("progress", edited.getProgress());
+                updates.put("currentPage", edited.getCurrentPage());
+                updates.put("readingPageCount", edited.getReadingPageCount());
                 Map<String, Object> metadata = new HashMap<>();
                 metadata.put("title", edited.getTitle()); metadata.put("author", edited.getAuthor());
                 metadata.put("description", edited.getDescription()); metadata.put("imageUrl", edited.getImageUrl());

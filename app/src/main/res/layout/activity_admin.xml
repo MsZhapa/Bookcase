@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" android:background="#FFFFFF">
 
     <!-- 📌 Include Toolbar -->
     <include layout="@layout/toolbar_layout" />
@@ -19,7 +19,7 @@
             android:orientation="vertical"
             android:padding="10dp">
             <!-- ISBN Lookup -->
-            <EditText
+            <EditText android:textColorHint="#616161" android:backgroundTint="#616161" android:textColor="#212121"
                 android:id="@+id/isbnEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -40,21 +40,21 @@
                 android:layout_height="wrap_content"
                 android:text="@string/scan_isbn" />
             <!-- 📚 Book Title -->
-            <EditText
+            <EditText android:textColorHint="#616161" android:backgroundTint="#616161" android:textColor="#212121"
                 android:id="@+id/titleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter book title" />
 
             <!-- ✍️ Author -->
-            <EditText
+            <EditText android:textColorHint="#616161" android:backgroundTint="#616161" android:textColor="#212121"
                 android:id="@+id/authorEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter author name" />
 
             <!-- 📖 Description -->
-            <EditText
+            <EditText android:textColorHint="#616161" android:backgroundTint="#616161" android:textColor="#212121"
                 android:id="@+id/descriptionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
                 android:minLines="3" />
 
             <!-- 📦 Cube Selection -->
-            <TextView
+            <TextView android:textColor="#212121"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -76,47 +76,14 @@
 
             <!-- 📚 Read Status -->
             <CheckBox
-                android:id="@+id/readCheckBox"
+                android:id="@+id/readCheckBox" android:buttonTint="#4527A0" android:textColor="#212121"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mark as Read" />
 
-            <!-- 📊 Progress Bar (Only visible if book is not fully read) -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Reading Progress (%)" />
-            <!-- Progress Bar with Percentage Indicator -->
-            <LinearLayout
-                android:id="@+id/adminProgressLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingTop="8dp">
+        <include layout="@layout/page_progress_fields" />
 
-                <SeekBar
-                    android:id="@+id/adminProgressBar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:max="100"
-                    android:progress="0" />
-
-                <!-- ✅ Progress Percentage Display -->
-                <TextView
-                    android:id="@+id/adminProgressPercentage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="0%"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-
-            <!-- 🖼️ Book Cover Image -->
+        <!-- 🖼️ Book Cover Image -->
             <ImageView
                 android:id="@+id/bookCoverImage"
                 android:layout_width="150dp"

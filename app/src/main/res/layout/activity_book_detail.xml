@@ -73,6 +73,10 @@
             android:ellipsize="end" />
         <Button android:id="@+id/personalNotesButton" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="@string/personal_notes" />
+        <TextView android:id="@+id/pageProgressSummary" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#212121" android:textSize="16sp" android:padding="8dp" />
+        <Button android:id="@+id/updateReadingProgressButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/update_reading_progress" />
         <!-- Read Status Checkbox -->
 
         <TextView

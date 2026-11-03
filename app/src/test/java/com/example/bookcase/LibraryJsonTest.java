@@ -12,6 +12,7 @@ public class LibraryJsonTest {
         Book a=new Book("a", "A \"title\"\n", "Ø Author", "Text\\body", "https://example.test/cover", true, 100, 3);
         a.setNotes("Personal note\nØ quote");
         a.setDueDate(new com.google.firebase.Timestamp(new java.util.Date(12345)));
+        a.setCurrentPage(75); a.setReadingPageCount(300);
         a.setIsbn("0306406152"); a.setPageCount(123); a.setPosition(42);
         a.setLendingStatus("LENT"); a.setBorrowerName("Friend"); a.setNormalizedCopy(true);
         Book b=new Book("b",a.getTitle(),a.getAuthor(),null,null,false,0,1);
@@ -26,6 +27,8 @@ public class LibraryJsonTest {
         assertTrue(json.contains("\"borrowerName\":\"Friend\""));
         assertTrue(json.contains("\"description\":null"));
         assertTrue(json.contains("Ø Author"));
+        assertTrue(json.contains("\"currentPage\":75"));
+        assertTrue(json.contains("\"readingPageCount\":300"));
         assertTrue(json.contains("\"notes\":\"Personal note\\nØ quote\""));
         assertTrue(json.contains("\"dueDateEpochMillis\":12345"));
         assertTrue(json.indexOf("\"id\":\"a\"")<json.indexOf("\"id\":\"b\""));

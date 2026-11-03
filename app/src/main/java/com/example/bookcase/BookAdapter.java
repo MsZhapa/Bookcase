@@ -55,9 +55,9 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                 book.getLocation(), book.getPosition() > 0
                         ? context.getString(R.string.copy_position, book.getPosition())
                         : context.getString(R.string.position_unknown)));
-        holder.readStatusTextView.setText(BookFilters.finished(book)
-                ? context.getString(R.string.status_finished)
-                : book.getProgress() > 0 ? context.getString(R.string.status_progress, book.getProgress())
+        holder.readStatusTextView.setText(book.getCurrentPage()!=null ? PageProgressForm.describe(context,book)
+                : BookFilters.finished(book) ? context.getString(R.string.status_finished)
+                : book.getProgress()>0 ? context.getString(R.string.status_progress,book.getProgress())
                 : context.getString(R.string.status_unread));
 
         holder.loanInfoTextView.setVisibility(showLoanDetails ? View.VISIBLE : View.GONE);
