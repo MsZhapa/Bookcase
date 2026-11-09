@@ -16,6 +16,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     private List<Book> bookList;
     private Context context;
     private boolean showLoanDetails;
+    private boolean showEditionDetails;
+    public void showEditions() { showEditionDetails=true; }
 
     public BookAdapter(Context context, List<Book> bookList) {
         this.context = context;
@@ -51,10 +53,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             holder.authorTextView.setText("by " + book.getAuthor());
         }
 
-        holder.locationTextView.setText(context.getString(R.string.copy_location,
-                book.getLocation(), book.getPosition() > 0
-                        ? context.getString(R.string.copy_position, book.getPosition())
-                        : context.getString(R.string.position_unknown)));
+        holder.locationTextView.setText(CubeSettings.location(context,book.getLocation(),book.getPosition()));
         holder.readStatusTextView.setText(book.getCurrentPage()!=null ? PageProgressForm.describe(context,book)
                 : BookFilters.finished(book) ? context.getString(R.string.status_finished)
                 : book.getProgress()>0 ? context.getString(R.string.status_progress,book.getProgress())
@@ -76,6 +75,9 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             holder.loanInfoTextView.setTextColor(android.graphics.Color.parseColor(overdue ? "#B71C1C" : "#424242"));
         }
 
+        holder.editionInfoTextView.setVisibility(showEditionDetails ? View.VISIBLE : View.GONE);
+        holder.editionInfoTextView.setText(book.getIsbn()==null || book.getIsbn().isEmpty()
+                ? context.getString(R.string.isbn_not_recorded) : context.getString(R.string.edition_isbn,book.getIsbn()));
         // Load image using Glide
         if (holder.bookImageView != null) {
             Glide.with(context)
@@ -99,13 +101,14 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public static class BookViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, authorTextView, lendingStatusTextView, locationTextView, readStatusTextView, loanInfoTextView;
+        TextView titleTextView, authorTextView, lendingStatusTextView, locationTextView, readStatusTextView, loanInfoTextView, editionInfoTextView;
         ImageView bookImageView;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
 
             // Ensure these IDs match those in item_book.xml
+            editionInfoTextView = itemView.findViewById(R.id.editionInfoTextView);
             loanInfoTextView = itemView.findViewById(R.id.loanInfoTextView);
             locationTextView = itemView.findViewById(R.id.locationTextView);
             readStatusTextView = itemView.findViewById(R.id.readStatusTextView);

@@ -45,9 +45,7 @@ public class CopyNotesActivity extends AppCompatActivity {
         model.phase.observe(this, phase -> {
             if (phase == NotesModel.DONE) { finish(); return; }
             if (model.loaded) ((TextView)findViewById(R.id.notesCopyLabel)).setText(
-                    getString(R.string.notes_copy_label, model.title, model.cube,
-                            model.position > 0 ? getString(R.string.copy_position, model.position)
-                                    : getString(R.string.position_unknown)));
+                    CubeSettings.copyLabel(this,model.title,model.cube,model.position));
             rendering = true;
             if (model.loaded && !editor.getText().toString().equals(model.draft())) editor.setText(model.draft());
             rendering = false;

@@ -94,7 +94,7 @@ public class AdminActivity extends AppCompatActivity {
         bookCoverImage = findViewById(R.id.bookCoverImage);
 
         // Load Cube Options in Spinner
-        String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
+        String[] cubeOptions = CubeSettings.options(this);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.filter_item, cubeOptions);
         adapter.setDropDownViewResource(R.layout.filter_item);
         cubeSpinner.setAdapter(adapter);
@@ -133,6 +133,11 @@ public class AdminActivity extends AppCompatActivity {
                 saveBookToFirestore(retrievedCoverUrl);
             }
         });
+        if (savedInstanceState==null && getIntent().hasExtra("wishlistTitle")) {
+            titleEditText.setText(getIntent().getStringExtra("wishlistTitle"));
+            authorEditText.setText(getIntent().getStringExtra("wishlistAuthor"));
+            isbnEditText.setText(getIntent().getStringExtra("wishlistIsbn"));
+        }
     }
 
     private void scanIsbn() {

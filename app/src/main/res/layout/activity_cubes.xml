@@ -5,7 +5,9 @@
     android:orientation="vertical">
     <!-- 📌 Include Custom Toolbar -->
     <include layout="@layout/toolbar_layout"/>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView android:id="@+id/cubeCountStatus" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:padding="8dp" android:textColor="#212121" android:background="#FFFFFF" android:accessibilityLiveRegion="polite" />
+<GridLayout android:id="@+id/cubeGrid" xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"

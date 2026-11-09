@@ -145,8 +145,7 @@ public class BookDetailActivity extends AppCompatActivity {
                                     book.getNotes().isEmpty() ? getString(R.string.no_personal_notes) : book.getNotes());
                             titleTextView.setText(book.getTitle());
                             authorTextView.setText("by " + book.getAuthor());
-                            locationTextView.setText("Current Cube: " + book.getLocation()
-                                    + (book.getPosition() > 0 ? " · Position: " + book.getPosition() : ""));
+                            locationTextView.setText(CubeSettings.location(this,book.getLocation(),book.getPosition()));
                             descriptionTextView.setText(book.getDescription());
 
                             ((TextView)findViewById(R.id.pageProgressSummary)).setText(PageProgressForm.describe(this,book));
@@ -564,7 +563,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
     // 📌 Show Move Book Dialog
     private void showMoveBookDialog() {
-        String[] cubeOptions = {"Cube 1", "Cube 2", "Cube 3", "Cube 4", "Cube 5", "Cube 6", "Cube 7", "Cube 8"};
+        String[] cubeOptions = CubeSettings.options(this);
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Move Book to:")

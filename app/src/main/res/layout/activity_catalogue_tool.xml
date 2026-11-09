@@ -1,0 +1,7 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
+    <include layout="@layout/toolbar_layout" />
+    <LinearLayout android:id="@+id/toolControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" />
+    <TextView android:id="@+id/toolStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:textColor="#212121" android:accessibilityLiveRegion="polite" />
+    <Button android:id="@+id/toolRetry" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/retry_load" android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/toolList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:padding="12dp" />
+</LinearLayout>

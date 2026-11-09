@@ -2,4 +2,7 @@
     <item android:id="@+id/actionReadingOverview" android:title="@string/reading_overview" />
     <item android:id="@+id/actionLoanOverview" android:title="@string/loans_overview" />
     <item android:id="@+id/actionExportLibrary" android:title="@string/export_library" />
+    <item android:id="@+id/actionBrowseEditions" android:title="@string/browse_editions" />
+    <item android:id="@+id/actionCustomizeCubes" android:title="@string/customize_cubes" />
+    <item android:id="@+id/actionWishlist" android:title="@string/wishlist" />
 </menu>

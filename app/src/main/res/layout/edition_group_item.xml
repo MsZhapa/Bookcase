@@ -1,0 +1,5 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/book_item_background" android:focusable="true" android:clickable="true">
+<TextView android:id="@+id/groupTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" android:textSize="18sp" android:textStyle="bold" />
+<TextView android:id="@+id/groupAuthor" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#424242" android:textSize="15sp" />
+<TextView android:id="@+id/groupMeta" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#1A237E" android:textSize="14sp" android:paddingTop="8dp" />
+</LinearLayout>

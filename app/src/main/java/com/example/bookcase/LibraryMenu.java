@@ -19,6 +19,9 @@ public final class LibraryMenu {
                 if (item.getItemId() == R.id.actionReadingOverview) target = ReadingOverviewActivity.class;
                 else if (item.getItemId() == R.id.actionLoanOverview) target = LoansActivity.class;
                 else if (item.getItemId() == R.id.actionExportLibrary) target = LibraryExportActivity.class;
+                else if (item.getItemId() == R.id.actionBrowseEditions) target = EditionsActivity.class;
+                else if (item.getItemId() == R.id.actionCustomizeCubes) target = CubeSettingsActivity.class;
+                else if (item.getItemId() == R.id.actionWishlist) target = WishlistActivity.class;
                 else return false;
                 screen.startActivity(new Intent(screen, target)); return true;
             });

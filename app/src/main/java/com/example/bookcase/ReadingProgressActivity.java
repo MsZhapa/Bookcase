@@ -31,9 +31,8 @@ public class ReadingProgressActivity extends AppCompatActivity {
             if (phase==ProgressModel.DONE) { finish(); return; }
             if (model.book!=null && !bound) {
                 form.bind(model.book); form.restore(draft); draft=null; bound=true;
-                ((TextView)findViewById(R.id.progressCopyLabel)).setText(getString(R.string.notes_copy_label,
-                        model.book.getTitle(),model.book.getLocation(), model.book.getPosition()>0
-                                ? getString(R.string.copy_position,model.book.getPosition()) : getString(R.string.position_unknown)));
+                ((TextView)findViewById(R.id.progressCopyLabel)).setText(CubeSettings.copyLabel(this,
+                        model.book.getTitle(),model.book.getLocation(),model.book.getPosition()));
             }
             boolean enabled=model.book!=null && !model.busy;
             findViewById(R.id.saveReadingProgress).setEnabled(enabled);

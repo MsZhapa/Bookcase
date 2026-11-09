@@ -52,6 +52,8 @@
         <TextView android:id="@+id/loanInfoTextView" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:textColor="#424242" android:textSize="14sp"
             android:layout_marginTop="6dp" android:visibility="gone" />
+        <TextView android:id="@+id/editionInfoTextView" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#424242" android:textSize="14sp" android:visibility="gone" />
         <!-- Lending Status -->
         <TextView
             android:id="@+id/lendingStatusTextView"

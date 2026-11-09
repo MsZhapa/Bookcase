@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         // 🏷️ Set Screen Title
         TextView screenTitle = findViewById(R.id.screenTitle);
         screenTitle.setText(getIntent().getIntExtra("selectedCube", -1) == -1
-                ? "All books" : "Cube " + getIntent().getIntExtra("selectedCube", -1));
+                ? "All books" : CubeSettings.numbered(this,getIntent().getIntExtra("selectedCube", -1)));
 
         // 🔙 Handle Back Button Click
         ImageView backButton = findViewById(R.id.backButton);
@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         int cube = getIntent().getIntExtra("selectedCube", -1);
+        ((TextView)findViewById(R.id.screenTitle)).setText(cube==-1 ? "All books" : CubeSettings.numbered(this,cube));
         if (bookAdapter != null) fetchBooksFromCube(cube);
     }
 

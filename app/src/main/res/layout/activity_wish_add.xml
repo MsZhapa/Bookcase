@@ -1,0 +1,11 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
+<include layout="@layout/toolbar_layout" />
+<ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+<TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/wishlist_help" android:textColor="#424242" android:textSize="16sp" />
+<EditText android:id="@+id/wishTitleInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/wish_title" android:maxLength="300" android:inputType="textCapWords" android:textColor="#212121" android:textColorHint="#616161" android:backgroundTint="#616161" android:importantForAutofill="no" />
+<EditText android:id="@+id/wishAuthorInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/wish_author" android:maxLength="300" android:inputType="textCapWords" android:textColor="#212121" android:textColorHint="#616161" android:backgroundTint="#616161" android:importantForAutofill="no" />
+<EditText android:id="@+id/wishIsbnInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="@string/wish_isbn" android:maxLength="32" android:inputType="text" android:singleLine="true" android:textColor="#212121" android:textColorHint="#616161" android:backgroundTint="#616161" android:importantForAutofill="no" />
+<TextView android:id="@+id/wishSaveStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#424242" android:accessibilityLiveRegion="polite" />
+<Button android:id="@+id/saveWish" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/save_wish" />
+</LinearLayout></ScrollView></LinearLayout>
