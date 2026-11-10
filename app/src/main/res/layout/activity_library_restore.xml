@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
+    <include layout="@layout/toolbar_layout" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/restore_description" android:textColor="#212121" android:textSize="16sp" />
+            <Button android:id="@+id/chooseBackupButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/restore_choose" />
+            <TextView android:id="@+id/restoreStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="16dp" android:textColor="#212121" android:textSize="16sp" android:accessibilityLiveRegion="polite" />
+            <TextView android:id="@+id/backupSettingsPreview" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" />
+            <CheckBox android:id="@+id/restoreCubeSettings" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/restore_settings" android:textColor="#212121" android:visibility="gone" />
+            <Button android:id="@+id/restoreBackupButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/restore_confirm_title" android:enabled="false" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

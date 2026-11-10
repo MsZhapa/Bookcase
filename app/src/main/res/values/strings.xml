@@ -33,7 +33,7 @@
     <string name="scan_invalid">That barcode is not a valid book ISBN. Try the 978 or 979 barcode.</string>
     <string name="scan_failed">Scanner unavailable. Check Google Play services and your connection, or enter the ISBN manually.</string>
     <string name="export_library">Export library</string>
-    <string name="export_description">Save your complete catalogue as a JSON file, including each copy’s location, reading status, personal notes and cover link. Image files and lending history are not included.</string>
+    <string name="export_description">Save a full backup of your books, editions, copies, reading progress, notes, lending history, wishlist and cube settings. Cover links are included; image files are not. An internet connection is required. Keep the file private: it includes notes and borrower names.</string>
     <string name="export_save">Choose where to save</string>
     <string name="export_working">Exporting library…</string>
     <string name="export_success">Exported %1$d copies</string>
@@ -139,4 +139,13 @@
 <string name="wish_save_failed">Could not save to the wishlist. Check your connection and retry.</string>
 <string name="wish_duplicate">This book is already on your wishlist.</string>
     <string name="default_cube_label">Cube %1$d</string>
+    <string name="restore_library">Restore library</string>
+    <string name="restore_description">Preview a full backup before restoring missing records. Matching records stay unchanged; conflicts block restore. Internet is required. Older catalogue-only exports cannot be restored.</string>
+    <string name="restore_choose">Choose backup to preview</string>
+    <string name="restore_settings">Also restore cube names and layout on this device</string>
+    <string name="restore_confirm_title">Restore missing records</string>
+    <string name="restore_confirm">Add %1$d missing records from this backup? Existing records will not be overwritten or deleted.</string>
+    <string name="restore_settings_confirm">
+
+Your local cube names and layout will also be replaced with the settings shown in the preview.</string>
 </resources>

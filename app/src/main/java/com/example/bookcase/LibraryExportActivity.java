@@ -48,16 +48,19 @@ public class LibraryExportActivity extends AppCompatActivity {
             if (busy) return;
             busy = true;
             state.setValue(new ExportState(true, R.string.export_working, -1));
-            new BookRepository().getBooks(null).addOnSuccessListener(books -> {
+            new BackupRepository().load().addOnSuccessListener(backup -> {
+                backup.exportedAt=System.currentTimeMillis();
+                backup.columns=CubeSettings.columns(getApplication());
+                for(int i=0;i<8;i++) backup.cubeNames[i]=CubeSettings.name(getApplication(),i+1);
                 ExecutorService worker = Executors.newSingleThreadExecutor();
                 worker.execute(() -> {
                     try (OutputStream stream = getApplication().getContentResolver().openOutputStream(uri, "wt")) {
                         if (stream == null) throw new java.io.IOException("Cannot open destination");
                         try (OutputStreamWriter writer = new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
-                            LibraryJson.write(writer, books, System.currentTimeMillis());
+                            BackupJson.write(writer, backup);
                         }
                         busy = false;
-                        state.postValue(new ExportState(false, 0, books.size()));
+                        state.postValue(new ExportState(false, 0, backup.copies()));
                     } catch (Exception error) { fail(); }
                 });
                 worker.shutdown();
