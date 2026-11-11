@@ -1,8 +1,40 @@
 # V2 migration and private Google access
 
-Implemented and verified during 10–11 November 2026. Real Google account sign-in
-and device activation are explicitly deferred to OnePlus testing. No Google
-account was added to the Android emulator.
+## Current verified state — November 11, 2026
+
+The owner-approved October 26 inventory replaces the unreconciled staging data:
+257 listed entries become 262 physical books after expanding grouped volumes
+and excluding painting supplies. V2 now has 260 works, 262 editions, 262 copies,
+one wishlist entry, one lending history record and eight position counters.
+Cube counts are 30, 32, 30, 45, 33, 31, 35 and 26, with continuous source-order
+positions. The historical 507 figure below counts stored records, not ownership.
+
+The replacement retained 137 copy IDs, added 125 missing books and removed 370
+excluded/duplicate copies after explicit approval. Personal data on the two
+excluded records was disclosed and retained in private backups. Wishlist and
+lending history were preserved; the original default database is unchanged.
+Exact edition details and ISBNs were not guessed for new inventory entries.
+
+The debug build installed on OnePlus. Real Google sign-in succeeded for the
+configured owner, verified 262 copies, and activated V2. The server acknowledged
+activation on November 11, 2026. Force-stop/relaunch retained the session;
+eight cube counts and Cube 1 source order were verified on the phone. The local
+Cube 5 “Travel” label remained intact. No Google account was added to the emulator.
+
+The corrected-inventory emulator test passed: full restore/fingerprint, all
+262 hydrated copies and positions, grouped volumes, legitimate duplicate titles,
+separate editions, search, wishlist/history and repeat-import idempotence. Its
+first attempt timed out connecting to the local test database; rerunning through
+adb reverse passed. The app and instrumentation builds passed.
+
+The library remains owner-only. Supporting other users with separate private
+libraries is future work; no access rules were broadened for this test.
+
+## Historical staging evidence (before inventory reconciliation)
+
+
+The following section records the initial November 10–11 staging checks.
+OnePlus sign-in and activation were subsequently completed as described above.
 
 ## Result
 
