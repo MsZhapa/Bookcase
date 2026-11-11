@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-public class ReadingProgressActivity extends AppCompatActivity {
+public class ReadingProgressActivity extends BookcaseActivity {
     private PageProgressForm form;
     private ProgressModel model;
     private boolean bound;

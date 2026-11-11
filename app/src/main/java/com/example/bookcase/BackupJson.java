@@ -101,6 +101,15 @@ public final class BackupJson {
             default: throw new IllegalArgumentException("Unsupported field type");
         }
     }
+    static Map<String,Object> readArchive(String json) {
+        try {
+            LibraryBackup.require(json.length()<=200000,"Archive is too large");
+            JsonReader reader=new JsonReader(new StringReader(json)); reader.setLenient(false);
+            Object decoded=decode(parse(reader,0),0);
+            LibraryBackup.require(reader.peek()==JsonToken.END_DOCUMENT && decoded instanceof Map,"Invalid original-record archive");
+            return (Map<String,Object>)decoded;
+        } catch(IOException error) { throw new IllegalArgumentException("Invalid original-record archive",error); }
+    }
     static boolean same(Map<String,Object> a,Map<String,Object> b) { return a==null ? b==null : b!=null && encode(a,0).equals(encode(b,0)); }
     static String fingerprint(LibraryBackup backup) {
         StringBuilder value=new StringBuilder();

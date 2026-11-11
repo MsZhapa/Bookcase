@@ -18,6 +18,7 @@ public final class LibraryMenu {
                 Class<?> target;
                 if (item.getItemId() == R.id.actionReadingOverview) target = ReadingOverviewActivity.class;
                 else if (item.getItemId() == R.id.actionLoanOverview) target = LoansActivity.class;
+                else if (item.getItemId() == R.id.actionAccount) target = AccountActivity.class;
                 else if (item.getItemId() == R.id.actionRestoreLibrary) target = LibraryRestoreActivity.class;
                 else if (item.getItemId() == R.id.actionExportLibrary) target = LibraryExportActivity.class;
                 else if (item.getItemId() == R.id.actionBrowseEditions) target = EditionsActivity.class;

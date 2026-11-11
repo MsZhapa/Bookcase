@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LibraryExportActivity extends AppCompatActivity {
+public class LibraryExportActivity extends BookcaseActivity {
     private ExportModel model;
     private final ActivityResultLauncher<String> createFile = registerForActivityResult(
             new ActivityResultContracts.CreateDocument("application/json"), uri -> {

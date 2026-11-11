@@ -13,7 +13,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 
-public class LibraryRestoreActivity extends AppCompatActivity {
+public class LibraryRestoreActivity extends BookcaseActivity {
     private RestoreModel model;
     private State displayed;
     private LibraryBackup lastPreview;

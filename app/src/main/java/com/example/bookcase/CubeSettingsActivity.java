@@ -3,7 +3,7 @@ import android.os.Bundle;
 import android.widget.*;
 import android.text.InputFilter;
 import androidx.appcompat.app.AppCompatActivity;
-public class CubeSettingsActivity extends AppCompatActivity {
+public class CubeSettingsActivity extends BookcaseActivity {
     private final EditText[] fields=new EditText[8]; private Spinner columns;
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);setContentView(R.layout.activity_cube_settings);

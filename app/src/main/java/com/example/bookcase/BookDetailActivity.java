@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class BookDetailActivity extends AppCompatActivity {
+public class BookDetailActivity extends BookcaseActivity {
 
     private TextView titleTextView, authorTextView, descriptionTextView, locationTextView, lendingInfoTextView;
     private ImageView bookImageView;
@@ -64,7 +64,7 @@ public class BookDetailActivity extends AppCompatActivity {
         lendBookButton = findViewById(R.id.lendBookButton);
         lendingHistoryContainer = findViewById(R.id.lendingHistoryContainer);
 
-        firestore = FirebaseFirestore.getInstance();
+        firestore = BookcaseDatabase.current();
 
         // Get book ID from intent
         normalizedCopy = getIntent().getBooleanExtra("normalizedCopy", false);

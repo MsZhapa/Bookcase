@@ -8,7 +8,7 @@ import java.util.*;
 public final class BackupRepository {
     private static final java.util.concurrent.Executor WORKER=java.util.concurrent.Executors.newSingleThreadExecutor();
     private final FirebaseFirestore db;
-    public BackupRepository() { this(FirebaseFirestore.getInstance()); }
+    public BackupRepository() { this(BookcaseDatabase.current()); }
     public BackupRepository(FirebaseFirestore db) { this.db=db; }
     public Task<LibraryBackup> load() {
         List<Task<QuerySnapshot>> reads=new ArrayList<>();
@@ -45,10 +45,10 @@ public final class BackupRepository {
                 }
                 return 0;
             });
-            // Bounded transactions allow large libraries and safe retry after interruption.
+            // Single-record transactions stay within private archive rule-expression limits and allow retry.
             // Earlier chunks contain works/editions/history before copies refer to them.
-            for(int start=0;start<fresh.missing.size();start+=100) {
-                List<String> chunk=new ArrayList<>(fresh.missing.subList(start,Math.min(start+100,fresh.missing.size())));
+            for(int start=0;start<fresh.missing.size();start+=1) {
+                List<String> chunk=new ArrayList<>(fresh.missing.subList(start,Math.min(start+1,fresh.missing.size())));
                 chain=chain.continueWithTask(WORKER,previous -> {
                     int completed=previous.getResult();
                     return db.runTransaction(tx -> {

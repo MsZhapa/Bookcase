@@ -148,4 +148,9 @@
     <string name="restore_settings_confirm">
 
 Your local cube names and layout will also be replaced with the settings shown in the preview.</string>
+    <string name="account_title">Account and private library</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="activate_private_library">Use private V2 library</string>
+    <string name="open_private_library">Open private library</string>
+    <string name="sign_out">Sign out</string>
 </resources>

@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class CubesActivity extends AppCompatActivity {
+public class CubesActivity extends BookcaseActivity {
     private final android.widget.Button[] buttons=new android.widget.Button[8];
     private final int[] ids={R.id.cube1Button,R.id.cube2Button,R.id.cube3Button,R.id.cube4Button,
             R.id.cube5Button,R.id.cube6Button,R.id.cube7Button,R.id.cube8Button};

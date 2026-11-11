@@ -3,7 +3,7 @@ import android.os.Bundle;
 import android.widget.*;
 import androidx.appcompat.app.*;
 import androidx.lifecycle.*;
-public class WishAddActivity extends AppCompatActivity {
+public class WishAddActivity extends BookcaseActivity {
     private AddModel model;private AlertDialog confirmation;
     @Override protected void onCreate(Bundle state){
         super.onCreate(state);setContentView(R.layout.activity_wish_add);((TextView)findViewById(R.id.screenTitle)).setText(R.string.add_wish);

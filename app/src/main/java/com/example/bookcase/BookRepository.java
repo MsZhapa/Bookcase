@@ -8,7 +8,7 @@ import java.util.*;
 /** Transitional repository: legacy books stay in place; new writes use normalized collections. */
 public class BookRepository {
     private final FirebaseFirestore db;
-    public BookRepository() { this(FirebaseFirestore.getInstance()); }
+    public BookRepository() { this(BookcaseDatabase.current()); }
     public BookRepository(FirebaseFirestore db) { this.db = db; }
     public DocumentReference copyRef(String id, boolean normalized) {
         return db.collection(normalized ? "bookCopies" : "books").document(id);
@@ -113,9 +113,10 @@ public class BookRepository {
 
     private Task<Void> addWithEdition(Book book, String existingEditionId) {
         String id = book.getId();
-        // Reuse an equivalent ISBN edition when present; never merge works by title.
-        BookWork work = new BookWork(id, book.getTitle(), book.getAuthor(), book.getDescription());
-        BookEdition edition = new BookEdition(id, id, book.getIsbn(), book.getTitle(),
+        // Reuse equivalent ISBN editions; canonical works use title and author together.
+        String workId=CatalogueIdentity.workId(book.getTitle(),book.getAuthor(),id);
+        BookWork work = new BookWork(workId, EditionGroups.baseTitle(book.getTitle()), book.getAuthor(), book.getDescription());
+        BookEdition edition = new BookEdition(id, workId, book.getIsbn(), book.getTitle(),
                 book.getAuthor(), book.getDescription(), book.getImageUrl(), book.getPageCount());
         DocumentReference counter = db.collection("cubePositions").document("" + book.getLocation());
         return db.runTransaction(tx -> {
@@ -123,6 +124,7 @@ public class BookRepository {
             DocumentSnapshot count = tx.get(counter);
             DocumentSnapshot existingEdition = existingEditionId == null ? null
                     : tx.get(db.collection("editions").document(existingEditionId));
+            DocumentSnapshot existingWork=existingEditionId==null ? tx.get(db.collection("works").document(workId)) : null;
             if (existingEdition != null && !existingEdition.exists())
                 throw new IllegalStateException("Edition no longer exists; try again");
             if (current.exists()) throw new IllegalStateException("Copy already exists");
@@ -131,7 +133,7 @@ public class BookRepository {
             copy.setRead(book.isRead()); copy.setProgress(book.getProgress());
             copy.setCurrentPage(book.getCurrentPage()); copy.setReadingPageCount(book.getReadingPageCount());
             if (existingEditionId == null) {
-                tx.set(db.collection("works").document(id), work);
+                if(!existingWork.exists()) tx.set(db.collection("works").document(workId), work);
                 tx.set(db.collection("editions").document(id), edition);
             }
             tx.set(copyRef(id, true), copy);
@@ -154,6 +156,10 @@ public class BookRepository {
             DocumentSnapshot count = moved ? tx.get(counter) : null;
             DocumentSnapshot edition = normalized && edited != null
                     ? tx.get(db.collection("editions").document(current.getString("editionId"))) : null;
+            String oldWorkId=edition==null ? "" : edition.getString("workId");
+            boolean canonicalWork=oldWorkId!=null && oldWorkId.startsWith("work-");
+            String editedWorkId=canonicalWork ? CatalogueIdentity.workId(edited.getTitle(),edited.getAuthor(),id) : oldWorkId;
+            DocumentSnapshot editedWork=canonicalWork ? tx.get(db.collection("works").document(editedWorkId)) : null;
             Map<String, Object> updates = new HashMap<>();
             if (moved) {
                 long position = nextPosition(count);
@@ -171,9 +177,14 @@ public class BookRepository {
                 metadata.put("description", edited.getDescription()); metadata.put("imageUrl", edited.getImageUrl());
                 if (normalized) {
                     if (!edition.exists()) throw new IllegalStateException("Edition not found");
+                    if(canonicalWork) {
+                        metadata.put("workId",editedWorkId);
+                        if(!editedWork.exists()) tx.set(db.collection("works").document(editedWorkId),new BookWork(editedWorkId,EditionGroups.baseTitle(edited.getTitle()),edited.getAuthor(),edited.getDescription()));
+                    } else {
+                        Map<String,Object> work=new HashMap<>(metadata); work.remove("imageUrl");
+                        tx.update(db.collection("works").document(oldWorkId),work);
+                    }
                     tx.update(edition.getReference(), metadata);
-                    Map<String, Object> work = new HashMap<>(metadata); work.remove("imageUrl");
-                    tx.update(db.collection("works").document(edition.getString("workId")), work);
                 } else {
                     updates.putAll(metadata);
                     // Original documents may contain either spelling from earlier versions.

@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ReadingOverviewActivity extends AppCompatActivity {
+public class ReadingOverviewActivity extends BookcaseActivity {
     private final int[] counts = {R.id.overviewAll, R.id.overviewUnread, R.id.overviewProgress,
             R.id.overviewFinished, R.id.overviewLent};
     @Override protected void onCreate(Bundle state) {

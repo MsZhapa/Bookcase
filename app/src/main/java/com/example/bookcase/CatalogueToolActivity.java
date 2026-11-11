@@ -5,7 +5,7 @@ import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.*;
 import java.util.function.Consumer;
-public abstract class CatalogueToolActivity extends AppCompatActivity {
+public abstract class CatalogueToolActivity extends BookcaseActivity {
     protected LinearLayout controls;
     protected RecyclerView list;
     protected TextView status;

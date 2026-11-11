@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AdminActivity extends AppCompatActivity {
+public class AdminActivity extends BookcaseActivity {
 
     private EditText titleEditText, authorEditText, descriptionEditText, isbnEditText;
     private CheckBox readCheckBox;
@@ -443,7 +443,7 @@ public class AdminActivity extends AppCompatActivity {
         }
 
         // ✅ Ensure bookId is **generated** before adding to Firestore
-        String bookId = FirebaseFirestore.getInstance().collection("bookCopies").document().getId();
+        String bookId = BookcaseDatabase.current().collection("bookCopies").document().getId();
 
         // ✅ Create a **Book object** with the generated ID
         Book book = new Book(bookId, title, author, description, finalImageUrl, isRead, progress, cubeLocation);
@@ -459,7 +459,7 @@ public class AdminActivity extends AppCompatActivity {
         book.setPageCount(book.getReadingPageCount()==null ? 0 : book.getReadingPageCount());
 
         // ✅ Store the book in Firestore using its unique ID
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseFirestore db = BookcaseDatabase.current();
 
         String isbn = book.getIsbn();
 

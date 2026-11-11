@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Single private library. privateConfig/access.ownerEmail is provisioned by
+    // an administrator and is never readable/writable by clients. No first-user
+    // bootstrap or self-assigned roles. Only verified Google identity qualifies.
+    // works: id/title/author/description; editions add workId/isbn/imageUrl/pageCount.
+    // bookCopies: immutable id/editionId, cube/position, reading/loan state, notes;
+    // migrationArchive stores bounded historical source data and is immutable.
+    // lendingRecords: immutable identity/borrower/dates, ACTIVE -> RETURNED.
+    // wishlist: immutable id/createdAt, bounded metadata. cubePositions is a
+    // monotonic allocation cursor (restores may reserve more than one position).
+    // Legacy books is read-only for repository compatibility. All other paths deny.
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email.lower() == get(/databases/$(database)/documents/privateConfig/access).data.ownerEmail;
+    }
+    function text(d,k,max) { let value=d.get(k,null); return value == null || (value is string && value.size() <= max); }
+    function id(value) { return value is string && value.size() > 0 && value.size() <= 1500 && value.matches('[^/]+'); }
+    function number(d,k,max) { let value=d.get(k,null); return value == null || (value is int && value >= 0 && value <= max); }
+    function date(d,k) { let value=d.get(k,null); return value == null || value is timestamp; }
+    function boolean(d,k) { let value=d.get(k,null); return value == null || value is bool; }
+    function metadata(d) {
+      return text(d,'title',1000) && text(d,'author',500) && text(d,'description',20000)
+        && text(d,'imageUrl',4000) && text(d,'isbn',128)
+        && number(d,'pageCount',2147483647)
+        && (!('imageUrl' in d) || d.imageUrl == null || d.imageUrl == '' || d.imageUrl.matches('https?://.*'));
+    }
+    function validWork(d,key) {
+      return d.keys().hasAll(['id','title','author','description'])
+        && d.keys().hasOnly(['id','title','author','description']) && d.id == key && metadata(d);
+    }
+    function validEdition(d,key) {
+      return d.keys().hasAll(['id','workId','isbn','title','author','description','imageUrl','pageCount'])
+        && d.keys().hasOnly(['id','workId','isbn','title','author','description','imageUrl','pageCount'])
+        && d.id == key && id(d.workId) && metadata(d) && d.pageCount is int
+        && d.isbn is string && d.isbn.matches('(|97[89][0-9]{10})')
+        && existsAfter(/databases/$(database)/documents/works/$(d.workId));
+    }
+    // Original snapshots are opaque portable JSON, never executed or used for
+    // authorization. A bounded string keeps validation below expression limits.
+    // Copy update rules prohibit changing or removing this audit snapshot.
+    function validArchive(d,key) {
+      return !('migrationArchive' in d) || (d.migrationArchive is string
+        && d.migrationArchive.size() > 0 && d.migrationArchive.size() <= 200000);
+    }
+    function validCopy(d,key,updating) {
+      return d.keys().hasAll(['id','editionId','cubeNumber','position','read','progress','lendingStatus'])
+        && d.keys().hasOnly(['id','editionId','cubeNumber','position','read','progress','currentPage','readingPageCount','notes','lendingStatus','borrowerName','activeLoanId','lentDate','dueDate','migrationArchive'])
+        && d.id == key && id(d.editionId) && existsAfter(/databases/$(database)/documents/editions/$(d.editionId))
+        && d.cubeNumber is int && d.cubeNumber >= 1 && d.cubeNumber <= 8
+        && d.position is int && d.position >= 0 && d.position < 9223372036854775807
+        && d.read is bool && d.progress is int && d.progress >= 0 && d.progress <= 100
+        && number(d,'currentPage',2147483647) && number(d,'readingPageCount',2147483647)
+        && (d.get('currentPage',null) == null || d.get('readingPageCount',null) == null || d.currentPage <= d.readingPageCount)
+        && text(d,'notes',20000) && text(d,'borrowerName',200) && text(d,'activeLoanId',1500)
+        && date(d,'lentDate') && date(d,'dueDate') && (updating || validArchive(d,key))
+        && ((d.lendingStatus == 'AVAILABLE' && d.get('activeLoanId',null) in [null,''])
+          || (d.lendingStatus == 'LENT' && id(d.activeLoanId) && d.borrowerName is string && d.borrowerName.size() > 0
+            && getAfter(/databases/$(database)/documents/lendingRecords/$(d.activeLoanId)).data.bookId == key
+            && getAfter(/databases/$(database)/documents/lendingRecords/$(d.activeLoanId)).data.status == 'ACTIVE'));
+    }
+    function validLoan(d,key) {
+      return d.keys().hasAll(['id','bookId','borrowerName','lentDate','status'])
+        && d.keys().hasOnly(['id','bookId','bookCopyId','borrowerName','lentDate','dueDate','returnedDate','status'])
+        && d.id == key && id(d.bookId) && text(d,'bookCopyId',1500)
+        && (d.get('bookCopyId',null) == null || d.bookCopyId == d.bookId)
+        && d.borrowerName is string && d.borrowerName.size() > 0 && d.borrowerName.size() <= 200
+        && d.lentDate is timestamp && date(d,'dueDate') && date(d,'returnedDate')
+        && d.status in ['ACTIVE','RETURNED']
+        && (d.status == 'ACTIVE' || (d.returnedDate is timestamp && d.returnedDate >= d.lentDate));
+    }
+    function validWish(d,key) {
+      return d.keys().hasAll(['id','title','author','isbn','createdAt'])
+        && d.keys().hasOnly(['id','title','author','isbn','createdAt']) && d.id == key
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 300
+        && d.author is string && d.author.size() <= 300 && d.isbn is string && d.isbn.matches('(|97[89][0-9]{10})')
+        && d.createdAt is int && d.createdAt >= 0 && d.createdAt <= request.time.toMillis() + 300000;
+    }
+    function validCounter(d,key) {
+      return key.matches('[1-8]') && d.keys().hasAll(['lastPosition']) && d.keys().hasOnly(['lastPosition'])
+        && d.lastPosition is int && d.lastPosition >= 0 && d.lastPosition < 9223372036854775807;
+    }
+    match /works/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validWork(request.resource.data,key);
+      allow update: if isOwner() && validWork(request.resource.data,key) && request.resource.data.id == resource.data.id;
+    }
+    match /editions/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validEdition(request.resource.data,key);
+      allow update: if isOwner() && validEdition(request.resource.data,key) && request.resource.data.id == resource.data.id;
+    }
+    match /bookCopies/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validCopy(request.resource.data,key,false);
+      allow update: if isOwner() && validCopy(request.resource.data,key,true)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editionId','cubeNumber','position','read','progress','currentPage','readingPageCount','notes','lendingStatus','borrowerName','activeLoanId','lentDate','dueDate']);
+      allow delete: if isOwner();
+    }
+    match /lendingRecords/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validLoan(request.resource.data,key);
+      allow update: if isOwner() && validLoan(request.resource.data,key)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','returnedDate'])
+        && resource.data.status == 'ACTIVE' && request.resource.data.status == 'RETURNED';
+    }
+    match /wishlist/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validWish(request.resource.data,key);
+      allow update: if isOwner() && validWish(request.resource.data,key)
+        && request.resource.data.id == resource.data.id && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isOwner();
+    }
+    match /cubePositions/{key} {
+      allow read: if isOwner();
+      allow create: if isOwner() && validCounter(request.resource.data,key);
+      allow update: if isOwner() && validCounter(request.resource.data,key) && request.resource.data.lastPosition >= resource.data.lastPosition;
+    }
+    // Administrator-issued readiness receipt; clients cannot mark a migration ready.
+    function validReadiness(d) {
+      return d.keys().hasAll(['schemaVersion','migrationVerified','initialCopyCount','verifiedAt','sourceFingerprint','targetFingerprint','activated','activatedAt'])
+        && d.keys().hasOnly(['schemaVersion','migrationVerified','initialCopyCount','verifiedAt','sourceFingerprint','targetFingerprint','activated','activatedAt'])
+        && d.schemaVersion == 2 && d.migrationVerified == true && d.initialCopyCount is int && d.initialCopyCount >= 0 && d.initialCopyCount <= 10000
+        && d.verifiedAt is timestamp && d.sourceFingerprint is string && d.sourceFingerprint.matches('[0-9a-f]{64}')
+        && d.targetFingerprint is string && d.targetFingerprint.matches('[0-9a-f]{64}') && d.activated == true && d.activatedAt == request.time;
+    }
+    match /libraryStatus/{key} {
+      allow read: if isOwner();
+      // The owner can acknowledge first cutover, but cannot change verification or ownership.
+      allow update: if key == 'current' && isOwner() && validReadiness(request.resource.data)
+        && resource.data.activated == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activated','activatedAt']);
+    }
+    match /books/{key} { allow read: if isOwner(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

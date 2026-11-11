@@ -6,4 +6,5 @@
     <item android:id="@+id/actionBrowseEditions" android:title="@string/browse_editions" />
     <item android:id="@+id/actionCustomizeCubes" android:title="@string/customize_cubes" />
     <item android:id="@+id/actionWishlist" android:title="@string/wishlist" />
+    <item android:id="@+id/actionAccount" android:title="@string/account_title" />
 </menu>

@@ -23,7 +23,7 @@ stays disabled unless local settings or shelf counters need restoration.
 
 Server-only reads avoid exporting or previewing an incomplete offline cache.
 Restore rechecks the preview against the current library and uses create-only
-transactions in chunks of up to 100 records. Matching records are untouched;
+single-record transactions under the private V2 rules. Matching records are untouched;
 different existing records block the import. Position counters only advance and
 are checked between chunks to detect concurrent additions/moves. Dependencies
 are read again before a copy is added. No records are deleted by restore.
@@ -35,7 +35,7 @@ rollback. Reimporting a completed backup creates no additional copies.
 
 ## Validation
 
-- Debug build passed. All 69 JVM tests passed, with zero failures or errors.
+- Debug build passed. At that batch, all 69 JVM tests passed, with zero failures or errors.
 - Six integration tests ran on the Android 16 emulator using named Firebase
   apps connected exclusively to the local Firestore emulator and isolated
   demo project IDs. No integration test used the production Firebase app.
@@ -115,3 +115,7 @@ so the installed instrumentation tests were run directly through adb.
 - `app/src/main/res/menu/library_actions.xml`
 - `app/src/main/res/values/strings.xml`
 - `app/src/test/java/com/example/bookcase/BackupTest.java`
+
+The V2/auth batch extends validation to 93 JVM tests, 13 emulator regression tests
+and 55 private-rule checks; see MIGRATION_V2.md. Real Google/device activation
+is deferred to OnePlus testing.

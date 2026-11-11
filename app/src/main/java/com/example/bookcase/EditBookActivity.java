@@ -19,7 +19,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.util.UUID;
 
-public class EditBookActivity extends AppCompatActivity {
+public class EditBookActivity extends BookcaseActivity {
 
     private EditText editTitle, editAuthor, editDescription;
     private CheckBox editReadCheckBox;
@@ -45,7 +45,7 @@ public class EditBookActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_book);
 
         // Initialize Firestore & Storage
-        firestore = FirebaseFirestore.getInstance();
+        firestore = BookcaseDatabase.current();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 

@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BookcaseActivity {
     private RecyclerView recyclerView;
     private BookAdapter bookAdapter;
     private List<Book> bookList = new ArrayList<>();

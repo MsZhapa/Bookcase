@@ -68,7 +68,7 @@ public class BackupEmulatorTest {
     }
     @Test public void interruptedRestoreResumesWithoutDuplicatingCompletedChunks() throws Exception {
         LibraryBackup backup=fixture(220); RestorePlan plan=new RestorePlan(backup,waitFor(repository.load()));
-        try { waitFor(repository.restore(backup,plan,count -> { throw new IllegalStateException("Simulate interruption after committed chunk"); })); fail(); } catch(java.util.concurrent.ExecutionException expected) { }
+        try { waitFor(repository.restore(backup,plan,count -> { if(count>=8) throw new IllegalStateException("Simulate interruption after committed chunk"); })); fail(); } catch(java.util.concurrent.ExecutionException expected) { }
         LibraryBackup partial=waitFor(repository.load()); assertTrue(partial.copies()>0 && partial.copies()<backup.copies());
         RestorePlan remaining=new RestorePlan(backup,partial); assertTrue(remaining.canRestore()); assertTrue(remaining.matching>0);
         waitFor(repository.restore(backup,remaining,count -> {})); LibraryBackup actual=waitFor(repository.load()); assertEquals(backup.copies(),actual.copies());
@@ -76,7 +76,7 @@ public class BackupEmulatorTest {
     }
     @Test public void concurrentPositionCounterChangeStopsRemainingChunks() throws Exception {
         LibraryBackup backup=fixture(220); RestorePlan plan=new RestorePlan(backup,waitFor(repository.load()));
-        Task<Integer> restore=repository.restore(backup,plan,count -> { if(count==100) { try { waitFor(db.collection("cubePositions").document("1").update("lastPosition",999L)); } catch(Exception e) { throw new RuntimeException(e); } } });
+        Task<Integer> restore=repository.restore(backup,plan,count -> { if(count>=100) { try { waitFor(db.collection("cubePositions").document("1").update("lastPosition",999L)); } catch(Exception e) { throw new RuntimeException(e); } } });
         try { waitFor(restore); fail("Concurrent move/add must stop remaining chunks"); } catch(java.util.concurrent.ExecutionException expected) { }
         LibraryBackup actual=waitFor(repository.load()); assertEquals(999L,actual.get("cubePositions","1").get("lastPosition"));
         assertTrue(actual.copies()<backup.copies());

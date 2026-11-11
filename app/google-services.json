@@ -12,7 +12,20 @@
           "package_name": "com.example.bookcase"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "672042712672-58kdqrnit1njbh5n275ovhbk3f8q840e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bookcase",
+            "certificate_hash": "f207439e30d798748bcf5e728b4bc5d73d1514c8"
+          }
+        },
+        {
+          "client_id": "672042712672-fu6dfanu4dj4b79qs4od9buhcsa5n0h8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCA3XDE6u4-BJueNYkN9zgskVIFTTbf4Js"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "672042712672-fu6dfanu4dj4b79qs4od9buhcsa5n0h8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

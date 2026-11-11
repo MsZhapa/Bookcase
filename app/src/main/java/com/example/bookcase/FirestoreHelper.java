@@ -5,7 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 
 public class FirestoreHelper {
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = BookcaseDatabase.current();
 
     // Add a book
     public void addBook(Book book) {

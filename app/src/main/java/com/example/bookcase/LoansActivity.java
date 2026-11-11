@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-public class LoansActivity extends AppCompatActivity {
+public class LoansActivity extends BookcaseActivity {
     private final List<Book> books = new ArrayList<>(), visible = new ArrayList<>();
     private BookAdapter adapter;
     private CheckBox overdueOnly;

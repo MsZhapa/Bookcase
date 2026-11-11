@@ -3,6 +3,7 @@ package com.example.bookcase;
 import com.google.firebase.Timestamp;
 
 /** One physical copy. Position is retained while lent; no row/top category. */
+@com.google.firebase.firestore.IgnoreExtraProperties
 public class BookCopy {
     private String id;
     private String editionId;

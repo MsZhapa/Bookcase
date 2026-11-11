@@ -12,7 +12,7 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-public class CopyNotesActivity extends AppCompatActivity {
+public class CopyNotesActivity extends BookcaseActivity {
     private NotesModel model;
     private EditText editor;
     private boolean rendering;

@@ -57,6 +57,7 @@ public final class LibraryBackup {
                 }
             }
             if (collection.equals("editions")) require(get("works",text(fields.get("workId")))!=null, "An edition is missing its work");
+            if(fields.containsKey("migrationArchive")) require(fields.get("migrationArchive") instanceof String && ((String)fields.get("migrationArchive")).length()<=200000,"Invalid original-record archive");
             if(fields.get("createdAt")!=null) require(number(fields.get("createdAt"),0)>=0,"Invalid creation date");
             if (collection.equals("wishlist")) {
                 WishItem expected=WishItem.create(text(fields.get("title")),text(fields.get("author")),text(fields.get("isbn")));
