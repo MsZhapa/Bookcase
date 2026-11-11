@@ -26,7 +26,15 @@ estimates, not new completion promises.
 | UI polish and empty/error states (3–5 h) | Partial | New tools have readable inputs, loading/retry/empty feedback. A complete app-wide review remains. |
 | Testing, bug fixes and release build (5–8 h) | Partial | 93 local tests, 13 isolated backup/migration emulator tests, a final targeted editing test, and 55 private-rule checks pass for delivered work. Signed release validation and the existing Glide NotificationPermission lint failure remain. |
 
-## Current completed batch
+## Latest account batch
+
+- New welcome/login/register UI; direct transition to cubes and a Sign out menu item.
+- Every Google or email/password account uses its own UID-scoped bookcase.
+- Existing 262 books moved to their account; recovery copies are closed to clients.
+- 90 JVM tests, 14 emulator tests and 54 auth/rules checks pass; OnePlus Google login and sign-out passed.
+- See ACCOUNTS.md for files, behavior and verification.
+
+## Inventory batch (before account expansion)
 
 - Reconciled the approved October 26 source into 262 physical books, 260 works and 262 editions; removed reviewed extras from private V2.
 - Preserved source records as immutable portable JSON archives on converted copies.
@@ -42,10 +50,11 @@ emulator restore, hydration, search, position and repeat-import test. See MIGRAT
 1. Finish the app-wide UI/error-state review and signed release checks, including
    resolving the existing Glide lint error and registering the release certificate
    for Google sign-in.
-2. Review how to retire/restrict the original archive after cutover; its original
-   access rules have not been changed. V2 and original are not synchronized.
-3. Future expansion requested by the owner: support other Google users with
-   separate private libraries. This is additional scope, not implemented yet.
+2. Original archives are retained but now deny application access. Plan archive
+   retention separately; active account libraries and archives are not synchronized.
+3. Account expansion is delivered: email/password registration/login/reset and
+   Google login, with each account owning its UID-scoped bookcase. Review the
+   prototype rules before broad distribution. See ACCOUNTS.md.
 
 Full backups include works, editions, physical copies, legacy records if present,
 wishlist, lending history and local cube settings. Original-record archives are

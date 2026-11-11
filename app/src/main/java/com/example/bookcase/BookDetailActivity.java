@@ -30,7 +30,7 @@ public class BookDetailActivity extends BookcaseActivity {
     private Button moveButton, deleteBookButton, lendBookButton;
     private boolean isLent = false;
     private com.google.firebase.Timestamp selectedDueDate = null;
-    private FirebaseFirestore firestore;
+    private LibraryStore firestore;
     private String bookId;
     private boolean normalizedCopy;
 
@@ -64,7 +64,7 @@ public class BookDetailActivity extends BookcaseActivity {
         lendBookButton = findViewById(R.id.lendBookButton);
         lendingHistoryContainer = findViewById(R.id.lendingHistoryContainer);
 
-        firestore = BookcaseDatabase.current();
+        firestore = BookcaseDatabase.store();
 
         // Get book ID from intent
         normalizedCopy = getIntent().getBooleanExtra("normalizedCopy", false);

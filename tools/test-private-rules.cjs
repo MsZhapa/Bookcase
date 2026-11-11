@@ -2,7 +2,7 @@
 'use strict';
 // Local emulator only. Unsigned mock identity tokens are NEVER sent to production.
 const fs=require('node:fs'),assert=require('node:assert/strict');
-const host='http://127.0.0.1:8080',project='demo-bookcase-private',root=`${host}/v1/projects/${project}/databases/(default)/documents`;
+const host='http://127.0.0.1:8080',project='demo-bookcase-accounts',root=`${host}/v1/projects/${project}/databases/(default)/documents`;
 const rules=fs.readFileSync(require('node:path').join(__dirname,'../firestore.v2.rules'),'utf8');
 const owner='owner@example.test';
 function jwt(email=owner,verified=true,provider='google.com',uid='owner') {
@@ -37,73 +37,62 @@ const commit=(token,writes)=>request(root+':commit',token,'POST',{writes});
 let checks=0;
 async function allowed(label,promise) {const result=await promise;assert(result.ok,label+': '+JSON.stringify(result.data));checks++;console.log('PASS '+label);return result.data;}
 async function denied(label,promise) {const result=await promise;assert.equal(result.status,403,label+': '+JSON.stringify(result.data));checks++;console.log('PASS '+label);}
-async function main() {
-  await allowed('rules compile',request(`${host}/emulator/v1/projects/${project}:securityRules`,null,'PUT',{rules:{files:[{name:'firestore.rules',content:rules}]}}));
-  await allowed('clear isolated fixture',request(`${host}/emulator/v1/projects/${project}/databases/(default)/documents`,'owner','DELETE'));
-  await allowed('administrator configures owner',commit('owner',[document('privateConfig/access',fields({ownerEmail:owner}))]));
-  for(const [name,token] of [['signed out',null],['another Google account',foreign],['unverified email',unverified],['password provider',password]]) {
-    await denied(name+' cannot list library',request(root+'/bookCopies',token));
-    await denied(name+' cannot create records',commit(token,[document('works/forbidden',fields({id:'forbidden',title:'X',author:'A',description:null}))]));
-  }
-  await allowed('administrator marks verified migration ready',commit('owner',[document('libraryStatus/current',{...fields({schemaVersion:2,migrationVerified:true,initialCopyCount:507,sourceFingerprint:'0'.repeat(64),targetFingerprint:'1'.repeat(64),activated:false}),verifiedAt:{timestampValue:new Date().toISOString()}})]));
-  await allowed('owner can read readiness receipt',request(root+'/libraryStatus/current',identity));
-  await denied('other account cannot read readiness receipt',request(root+'/libraryStatus/current',foreign));
-  await denied('owner cannot forge readiness receipt',request(root+'/libraryStatus/current',identity,'PATCH',{fields:fields({schemaVersion:2,migrationVerified:false})}));
-  await denied('owner cannot read access configuration',request(root+'/privateConfig/access',identity));
-  await denied('owner cannot change access configuration',request(root+'/privateConfig/access',identity,'PATCH',{fields:fields({ownerEmail:'attacker@example.test'})}));
-  await denied('no self-assigned admin role',commit(identity,[document('users/owner',fields({isAdmin:true}))]));
-  await denied('undefined collection stays closed',request(root+'/other',identity));
-  const receipt=(await request(root+'/libraryStatus/current',identity)).data;
-  const activate={...receipt.fields,activated:{booleanValue:true}};
-  await denied('another account cannot acknowledge cutover',commit(foreign,[{update:{name:receipt.name,fields:activate},updateTransforms:[{fieldPath:'activatedAt',setToServerValue:'REQUEST_TIME'}]}]));
-  await denied('owner cannot change verification fingerprints',commit(identity,[{update:{name:receipt.name,fields:{...activate,sourceFingerprint:{stringValue:'2'.repeat(64)}}},updateTransforms:[{fieldPath:'activatedAt',setToServerValue:'REQUEST_TIME'}]}]));
-  await allowed('owner acknowledges verified first cutover',commit(identity,[{update:{name:receipt.name,fields:activate},updateTransforms:[{fieldPath:'activatedAt',setToServerValue:'REQUEST_TIME'}]}]));
-  await denied('cutover acknowledgement cannot be reset',request(root+'/libraryStatus/current',identity,'PATCH',{fields:{...receipt.fields,activated:{booleanValue:false}}}));
-  const fixturePath=process.argv[2];
-  if(fixturePath) {
-    const backup=JSON.parse(fs.readFileSync(fixturePath,'utf8'));
-    const writes=[]; for(const collection of ['cubePositions','works','editions','lendingRecords','bookCopies','wishlist']) for(const d of backup.collections[collection]) writes.push(document(collection+'/'+d.id,backupField(d.fields).mapValue.fields));
-    for(let i=0;i<writes.length;i+=1) {
-      const result=await commit(identity,writes.slice(i,i+1));assert(result.ok,'full migrated backup restore chunk '+i+': '+JSON.stringify(result.data));
-    }
-    checks++;console.log('PASS full migrated backup restored under owner rules ('+writes.length+' records)');
-  }
-  await allowed('owner creates a valid work',commit(identity,[document('works/testwork',fields({id:'testwork',title:'Work',author:'Author',description:null}))]));
-  const edition={id:'testedition',workId:'testwork',title:'Work',author:'Author',description:null,imageUrl:null,isbn:'',pageCount:400};
-  await allowed('owner creates valid edition',commit(identity,[document('editions/testedition',fields(edition))]));
-  const copy={id:'testcopy',editionId:'testedition',cubeNumber:1,position:0,read:false,progress:0,lendingStatus:'AVAILABLE',notes:''};
-  await allowed('owner creates valid physical copy',commit(identity,[document('bookCopies/testcopy',fields(copy))]));
-  await allowed('owner reads and lists library',request(root+'/bookCopies',identity));
-  await allowed('owner uses existing loan-history query',request(root+':runQuery',identity,'POST',{structuredQuery:{from:[{collectionId:'lendingRecords'}],where:{fieldFilter:{field:{fieldPath:'bookId'},op:'EQUAL',value:{stringValue:'testcopy'}}}}}));
-  const patch=(path,value,token=identity)=>request(root+'/'+path,token,'PATCH',{fields:fields(value)});
-  await denied('another Google account cannot get copy',request(root+'/bookCopies/testcopy',foreign));
-  await denied('another Google account cannot edit copy',patch('bookCopies/testcopy',{...copy,notes:'Stolen'},foreign));
-  await denied('another Google account cannot delete copy',request(root+'/bookCopies/testcopy',foreign,'DELETE'));
-  await allowed('owner saves notes',patch('bookCopies/testcopy',{...copy,notes:'Personal note'}));
-  await denied('oversized notes blocked on update',patch('bookCopies/testcopy',{...copy,notes:'x'.repeat(20001)}));
-  await denied('archive cannot be added or changed on update',patch('bookCopies/testcopy',{...copy,migrationArchive:'tampered'}));
-  await denied('oversized archive blocked on create',commit(identity,[document('bookCopies/oversize',{...fields(copy),id:{stringValue:'oversize'},migrationArchive:{stringValue:'x'.repeat(200001)}})]));
-  await denied('schema pollution blocked',patch('bookCopies/testcopy',{...copy,isAdmin:true}));
-  await denied('invalid progress blocked',patch('bookCopies/testcopy',{...copy,progress:101}));
-  await denied('invalid page types blocked',patch('bookCopies/testcopy',{...copy,currentPage:'ten'}));
-  await denied('page above total blocked',patch('bookCopies/testcopy',{...copy,currentPage:401,readingPageCount:400}));
-  await denied('copy ID hijack blocked',patch('bookCopies/testcopy',{...copy,id:'other'}));
-  await denied('missing required field blocked',patch('bookCopies/testcopy',Object.fromEntries(Object.entries(copy).filter(([k])=>k!=='editionId'))));
-  await denied('orphan edition blocked',patch('editions/testedition',{...edition,workId:'missing'}));
-  await denied('invalid URL blocked',patch('editions/testedition',{...edition,imageUrl:'file:///secret'}));
-  await denied('enormous metadata blocked',patch('works/testwork',{id:'testwork',title:'x'.repeat(1001),author:'A',description:null}));
-  const counter=await request(root+'/cubePositions/8',identity); const old=counter.ok?Number(counter.data.fields.lastPosition.integerValue):0;
-  await allowed('owner reserves shelf cursor',patch('cubePositions/8',{lastPosition:old+10}));
-  await denied('shelf cursor cannot move backwards',patch('cubePositions/8',{lastPosition:0}));
-  await denied('counter cannot hide extra fields',patch('cubePositions/8',{lastPosition:old+11,isAdmin:true}));
-  await denied('negative cursor blocked',patch('cubePositions/8',{lastPosition:-1}));
-  const wish={id:'testwish',title:'Wanted',author:'Author',isbn:'',createdAt:1};
-  await allowed('owner saves wishlist entry',commit(identity,[document('wishlist/testwish',fields(wish))]));
-  await denied('wishlist creation time immutable',patch('wishlist/testwish',{...wish,createdAt:2}));
-  await denied('wishlist title cannot disappear',patch('wishlist/testwish',{...wish,title:''}));
-  await denied('legacy collection is read-only',commit(identity,[document('books/legacy',fields({title:'Legacy',location:1}))]));
-  await denied('private subcollection stays closed',request(root+'/works/testwork/private',identity));
-  await allowed('owner can delete own wishlist entry',request(root+'/wishlist/testwish',identity,'DELETE'));
-  console.log(JSON.stringify({securityChecks:checks,passed:true,project,productionTouched:false}));
+async function main(){
+ await allowed('rules compile',request(`${host}/emulator/v1/projects/${project}:securityRules`,null,'PUT',{rules:{files:[{name:'firestore.rules',content:rules}]}}));
+ await allowed('clear isolated fixture',request(`${host}/emulator/v1/projects/${project}/databases/(default)/documents`,'owner','DELETE'));
+ const alice=jwt('alice@example.test',false,'password','alice'),bob=jwt('bob@example.test',true,'google.com','bob');
+ const a='users/alice/',b='users/bob/';
+ const work={id:'w',title:'Book',author:'Author',description:''};
+ const edition={id:'e',workId:'w',title:'Book',author:'Author',description:'',imageUrl:'',isbn:'',pageCount:100};
+ const copy={id:'c',editionId:'e',cubeNumber:1,position:1,read:false,progress:0,lendingStatus:'AVAILABLE',migrationArchive:'original snapshot'};
+ await allowed('password account creates own work',commit(alice,[document(a+'works/w',fields(work))]));
+ await allowed('Google account creates own work with same ID',commit(bob,[document(b+'works/w',fields({...work,title:'Other book'}))]));
+ await allowed('password account reads own list',request(root+'/'+a+'works',alice));
+ await allowed('Google account reads own list',request(root+'/'+b+'works',bob));
+ for(const [label,token]of [['signed out',null],['another account',bob],['anonymous provider',jwt('alice@example.test',false,'anonymous','alice')],['same email different UID',jwt('alice@example.test',true,'google.com','impostor')]]){
+  await denied(label+' cannot read Alice books',request(root+'/'+a+'works',token));
+  await denied(label+' cannot write Alice books',commit(token,[document(a+'works/x',fields({...work,id:'x'}))]));
+ }
+ await denied('Alice cannot read Bob',request(root+'/'+b+'works/w',alice));
+ await denied('Alice cannot delete Bob',request(root+'/'+b+'works/w',alice,'DELETE'));
+ for(const p of ['works','bookCopies','books','privateConfig/access','libraryStatus/current','users/bob','users'])await denied('no access to '+p,request(root+'/'+p,alice));
+ await denied('no self-assigned roles',commit(alice,[document('users/alice',fields({role:'admin'}))]));
+ await denied('unknown collection denied',commit(alice,[document(a+'other/x',fields({value:1}))]));
+ await denied('work rejects extra fields',commit(alice,[document(a+'works/x',fields({...work,id:'x',ownerUid:'bob'}))]));
+ await denied('work rejects missing title',commit(alice,[document(a+'works/x',fields({id:'x',author:'A',description:''}))]));
+ await denied('work update rejects missing fields',request(root+'/'+a+'works/w',alice,'PATCH',{fields:fields({id:'w',title:'X'})}));
+ await allowed('create own edition',commit(alice,[document(a+'editions/e',fields(edition))]));
+ await denied('edition cannot link work in another account',commit(bob,[document(b+'editions/e',fields({...edition,workId:'alice-only'}))]));
+ await allowed('create own copy',commit(alice,[document(a+'bookCopies/c',fields(copy))]));
+ await denied('copy cannot refer to another account edition',commit(bob,[document(b+'bookCopies/c',fields(copy))]));
+ await allowed('update notes and pages',request(root+'/'+a+'bookCopies/c',alice,'PATCH',{fields:fields({...copy,notes:'Note',currentPage:25,readingPageCount:100,progress:25})}));
+ await denied('cannot edit archive',request(root+'/'+a+'bookCopies/c',alice,'PATCH',{fields:fields({...copy,migrationArchive:'changed'})}));
+ await denied('cannot remove archive',request(root+'/'+a+'bookCopies/c',alice,'PATCH',{fields:fields(Object.fromEntries(Object.entries(copy).filter(([k])=>k!=='migrationArchive')))}));
+ await denied('pages cannot exceed total',request(root+'/'+a+'bookCopies/c',alice,'PATCH',{fields:fields({...copy,currentPage:101,readingPageCount:100})}));
+ await denied('cube must be valid',request(root+'/'+a+'bookCopies/c',alice,'PATCH',{fields:fields({...copy,cubeNumber:9})}));
+ await allowed('create own counter',commit(alice,[document(a+'cubePositions/1',fields({lastPosition:1}))]));
+ await allowed('advance own counter',request(root+'/'+a+'cubePositions/1',alice,'PATCH',{fields:fields({lastPosition:2})}));
+ await denied('counter cannot decrease',request(root+'/'+a+'cubePositions/1',alice,'PATCH',{fields:fields({lastPosition:1})}));
+ const wish={id:'wish',title:'Wanted',author:'',isbn:'',createdAt:Date.now()};
+ await allowed('create own wishlist item',commit(alice,[document(a+'wishlist/wish',fields(wish))]));
+ await denied('wishlist date immutable',request(root+'/'+a+'wishlist/wish',alice,'PATCH',{fields:fields({...wish,createdAt:1})}));
+ await denied('Bob cannot list Alice wishlist',request(root+'/'+a+'wishlist',bob));
+ const loan={...fields({id:'loan',bookId:'c',bookCopyId:'c',borrowerName:'Friend',status:'ACTIVE'}),lentDate:{timestampValue:'2026-01-01T00:00:00Z'}};
+ await allowed('lend atomically within own account',commit(alice,[document(a+'lendingRecords/loan',loan),{update:{name:`projects/${project}/databases/(default)/documents/${a}bookCopies/c`,fields:fields({...copy,lendingStatus:'LENT',borrowerName:'Friend',activeLoanId:'loan'})}}]));
+ await denied('another account cannot read loans',request(root+'/'+a+'lendingRecords',bob));
+ await allowed('return loan',request(root+'/'+a+'lendingRecords/loan',alice,'PATCH',{fields:{...loan,...fields({status:'RETURNED'}),returnedDate:{timestampValue:'2026-01-02T00:00:00Z'}}}));
+ await denied('returned loan cannot be rewritten',request(root+'/'+a+'lendingRecords/loan',alice,'PATCH',{fields:loan}));
+ await allowed('delete own copy',request(root+'/'+a+'bookCopies/c',alice,'DELETE'));
+ // Use real emulator authentication for registration/login rather than mock JWTs.
+ const authRoot=`http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1`;
+ const email='new-'+Date.now()+'@example.test',password='Test-password-123';
+ const registered=await allowed('email registration',request(authRoot+'/accounts:signUp?key=fake',null,'POST',{email,password,returnSecureToken:true}));
+ await allowed('new account has an empty library',request(root+`/users/${registered.localId}/bookCopies`,registered.idToken));
+ await denied('new account cannot read existing Alice books',request(root+'/'+a+'works',registered.idToken));
+ const login=await allowed('email/password login',request(authRoot+'/accounts:signInWithPassword?key=fake',null,'POST',{email,password,returnSecureToken:true}));
+ assert.equal(login.localId,registered.localId);
+ const wrong=await request(authRoot+'/accounts:signInWithPassword?key=fake',null,'POST',{email,password:'Wrong-password',returnSecureToken:true});assert.equal(wrong.status,400);checks++;console.log('PASS wrong password rejected');
+ await allowed('password reset request (local emulator only)',request(authRoot+'/accounts:sendOobCode?key=fake',null,'POST',{email,requestType:'PASSWORD_RESET'}));
+ console.log(`PASS ${checks} account isolation, validation and authentication checks`);
 }
-main().catch(error=>{console.error(error.message);process.exitCode=1;});
+main().catch(e=>{console.error(e.message);process.exitCode=1;});

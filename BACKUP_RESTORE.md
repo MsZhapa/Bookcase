@@ -1,6 +1,9 @@
 # Full backup and restore — implementation and verification
 
-Verified 10 November 2026. Implements the backup/import item from the original
+Current update, November 11, 2026: backups and restores are scoped to the signed-in
+account. Original recovery databases deny client access. See ACCOUNTS.md.
+
+Historical verification, 10 November 2026. Implements the backup/import item from the original
 Bookcase roadmap. App changes are on develop.
 
 ## Behavior
@@ -46,7 +49,7 @@ rollback. Reimporting a completed backup creates no additional copies.
   share one test, as do the counter stop/resume checks.
 - Date round trips use Firestore's microsecond precision. Unsupported finer
   timestamps are rejected before import instead of producing false conflicts.
-- Android file picker export saved a full backup of the actual 507 owned copies,
+- Android file picker export saved a full backup of the then-stored 507 copy records (before inventory reconciliation),
   two works, two editions, one lending record, one wishlist entry and one counter.
   Reopening it showed zero missing records, 513 matching non-counter records,
   and zero conflicts. The real library was only read; restore was not confirmed.
@@ -117,5 +120,5 @@ so the installed instrumentation tests were run directly through adb.
 - `app/src/test/java/com/example/bookcase/BackupTest.java`
 
 The V2/auth batch extends validation to 93 JVM tests, 13 emulator regression tests
-and 55 private-rule checks; see MIGRATION_V2.md. Real Google/device activation
-is deferred to OnePlus testing.
+and 55 private-rule checks; see MIGRATION_V2.md. Real Google/device activation subsequently passed on OnePlus; account-scoped
+login/register/sign-out and isolation are documented in ACCOUNTS.md.

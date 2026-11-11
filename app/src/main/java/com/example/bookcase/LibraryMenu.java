@@ -18,7 +18,11 @@ public final class LibraryMenu {
                 Class<?> target;
                 if (item.getItemId() == R.id.actionReadingOverview) target = ReadingOverviewActivity.class;
                 else if (item.getItemId() == R.id.actionLoanOverview) target = LoansActivity.class;
-                else if (item.getItemId() == R.id.actionAccount) target = AccountActivity.class;
+                else if (item.getItemId() == R.id.actionAccount) {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+                    screen.startActivity(new Intent(screen,AccountActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));screen.finish();return true;
+                }
+                else if(item.getItemId()==R.id.actionAddBook) target=AdminActivity.class;
                 else if (item.getItemId() == R.id.actionRestoreLibrary) target = LibraryRestoreActivity.class;
                 else if (item.getItemId() == R.id.actionExportLibrary) target = LibraryExportActivity.class;
                 else if (item.getItemId() == R.id.actionBrowseEditions) target = EditionsActivity.class;

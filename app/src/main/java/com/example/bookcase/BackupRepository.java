@@ -7,9 +7,10 @@ import java.util.*;
 /** Server-only snapshots and resumable, create-only restore transactions. */
 public final class BackupRepository {
     private static final java.util.concurrent.Executor WORKER=java.util.concurrent.Executors.newSingleThreadExecutor();
-    private final FirebaseFirestore db;
+    private final LibraryStore db;
     public BackupRepository() { this(BookcaseDatabase.current()); }
-    public BackupRepository(FirebaseFirestore db) { this.db=db; }
+    public BackupRepository(FirebaseFirestore db) { this(new LibraryStore(db)); }
+    public BackupRepository(LibraryStore db) { this.db=db; }
     public Task<LibraryBackup> load() {
         List<Task<QuerySnapshot>> reads=new ArrayList<>();
         for(String name:LibraryBackup.COLLECTIONS) reads.add(db.collection(name).get(Source.SERVER));

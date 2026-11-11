@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF">
-    <include layout="@layout/toolbar_layout" />
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
-            <TextView android:id="@+id/accountStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingVertical="16dp" android:textColor="#212121" android:textSize="16sp" android:accessibilityLiveRegion="polite" />
-            <Button android:id="@+id/googleSignInButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/sign_in_google" />
-            <Button android:id="@+id/activateV2Button" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/activate_private_library" android:enabled="false" />
-            <Button android:id="@+id/signOutButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/sign_out" android:visibility="gone" />
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#F7F3EB" android:fillViewport="true" android:fitsSystemWindows="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="28dp" android:paddingVertical="32dp" android:gravity="center_horizontal">
+<ImageView android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/ic_bookcase_mark" android:tint="#264B3A" android:importantForAccessibility="no" android:layout_marginTop="16dp"/>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bookcase" android:fontFamily="serif" android:textSize="40sp" android:textColor="#20382D" android:layout_marginTop="12dp"/>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/auth_tagline" android:textSize="16sp" android:textColor="#536458" android:layout_marginTop="4dp"/>
+<TextView android:id="@+id/authHeading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/welcome_back" android:textSize="24sp" android:fontFamily="sans-serif-medium" android:textColor="#20382D" android:layout_marginTop="36dp" android:layout_marginBottom="8dp" android:accessibilityHeading="true"/>
+<EditText android:id="@+id/emailInput" style="@style/AuthInput" android:hint="@string/auth_email" android:inputType="textEmailAddress" android:autofillHints="emailAddress" android:imeOptions="actionNext"/>
+<EditText android:id="@+id/passwordInput" style="@style/AuthInput" android:hint="@string/auth_password" android:inputType="textPassword" android:autofillHints="password" android:saveEnabled="false"/>
+<EditText android:id="@+id/confirmPasswordInput" style="@style/AuthInput" android:hint="@string/auth_confirm_password" android:inputType="textPassword" android:autofillHints="newPassword" android:saveEnabled="false" android:visibility="gone"/>
+<Button android:id="@+id/resetPasswordButton" style="@style/AuthButton" android:layout_height="48dp" android:layout_marginTop="0dp" android:background="?attr/selectableItemBackground" android:text="@string/forgot_password" android:textColor="#264B3A" android:gravity="end|center_vertical"/>
+<TextView android:id="@+id/accountStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#813A29" android:textSize="15sp" android:accessibilityLiveRegion="polite" android:paddingVertical="12dp" android:visibility="gone"/>
+<ProgressBar android:id="@+id/authProgress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:indeterminate="true" android:indeterminateTint="#264B3A" android:visibility="gone"/>
+<Button android:id="@+id/emailSignInButton" style="@style/AuthButton" android:background="@drawable/auth_primary" android:backgroundTint="#264B3A" android:text="@string/log_in" android:textColor="#FFFFFF"/>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/auth_or" android:textColor="#536458" android:layout_marginTop="20dp"/>
+<Button android:id="@+id/googleSignInButton" style="@style/AuthButton" android:background="@drawable/auth_input" android:backgroundTint="#FFFFFF" android:text="@string/continue_google" android:textColor="#20382D"/>
+<Button android:id="@+id/toggleRegisterButton" style="@style/AuthButton" android:layout_height="wrap_content" android:minHeight="56dp" android:background="?attr/selectableItemBackground" android:text="@string/need_account" android:textColor="#264B3A"/>
+</LinearLayout></ScrollView>

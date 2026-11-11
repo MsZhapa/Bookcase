@@ -45,6 +45,7 @@ public class AdminActivity extends BookcaseActivity {
     private boolean saving;
     private String retrievedIsbn = "";
     private StorageReference storageReference;
+    private LibraryStore library;
     private Uri imageUri; // Stores the selected image
 
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -55,6 +56,7 @@ public class AdminActivity extends BookcaseActivity {
         setContentView(R.layout.activity_admin);
 
         // Initialize Firebase Storage
+        library = BookcaseDatabase.store();
         storageReference = FirebaseStorage.getInstance().getReference();
 
         // 🏷️ Set Screen Title
@@ -410,7 +412,7 @@ public class AdminActivity extends BookcaseActivity {
                     .addOnFailureListener(e -> { saving = false; Toast.makeText(AdminActivity.this, "Upload failed", Toast.LENGTH_SHORT).show(); });
         }
     }
-    private void saveNewBook(FirebaseFirestore db, String bookId, Book book) {
+    private void saveNewBook(LibraryStore db, String bookId, Book book) {
 
         new BookRepository(db).add(book)
                 .addOnSuccessListener(aVoid -> {
@@ -443,7 +445,7 @@ public class AdminActivity extends BookcaseActivity {
         }
 
         // ✅ Ensure bookId is **generated** before adding to Firestore
-        String bookId = BookcaseDatabase.current().collection("bookCopies").document().getId();
+        String bookId = library.collection("bookCopies").document().getId();
 
         // ✅ Create a **Book object** with the generated ID
         Book book = new Book(bookId, title, author, description, finalImageUrl, isRead, progress, cubeLocation);
@@ -459,7 +461,7 @@ public class AdminActivity extends BookcaseActivity {
         book.setPageCount(book.getReadingPageCount()==null ? 0 : book.getReadingPageCount());
 
         // ✅ Store the book in Firestore using its unique ID
-        FirebaseFirestore db = BookcaseDatabase.current();
+        LibraryStore db = library;
 
         String isbn = book.getIsbn();
 

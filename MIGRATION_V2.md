@@ -1,5 +1,16 @@
 # V2 migration and private Google access
 
+## Current account structure — November 11, 2026
+
+All users, including the original catalogue holder, now use the same UID-scoped
+library at users/{uid} in the books database. The 262-book catalogue is saved under
+its account ID. New users start empty and can register/log in using email/password
+or Google. The old account-and-private-library/activation page is replaced by
+welcome/login and Sign out. Old root records and the default database are retained
+as admin-only recovery archives; app access is closed. See ACCOUNTS.md for current
+behavior, schema, deployment and verification. The remaining sections below record
+the earlier staging and cutover history, superseded by this account structure.
+
 ## Current verified state — November 11, 2026
 
 The owner-approved October 26 inventory replaces the unreconciled staging data:

@@ -1,0 +1,5 @@
+<resources>
+<style name="Theme.Bookcase.Welcome" parent="Theme.AppCompat.Light.NoActionBar"><item name="colorAccent">#264B3A</item><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">true</item><item name="android:windowBackground">#F7F3EB</item></style>
+<style name="AuthInput"><item name="android:layout_width">match_parent</item><item name="android:layout_height">56dp</item><item name="android:layout_marginTop">12dp</item><item name="android:background">@drawable/auth_input</item><item name="android:textColor">#20382D</item><item name="android:textColorHint">#536458</item><item name="android:textSize">16sp</item><item name="android:singleLine">true</item></style>
+<style name="AuthButton"><item name="android:layout_width">match_parent</item><item name="android:layout_height">56dp</item><item name="android:layout_marginTop">16dp</item><item name="android:textAllCaps">false</item><item name="android:textSize">16sp</item><item name="android:fontFamily">sans-serif-medium</item></style>
+</resources>

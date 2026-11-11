@@ -1,0 +1,26 @@
+<resources>
+    <string name="welcome_back">Welcome to Bookcase</string>
+    <string name="create_account">Create account</string>
+    <string name="log_in">Log in</string>
+    <string name="have_account">Already have an account? Log in</string>
+    <string name="need_account">New to Bookcase? Create an account</string>
+    <string name="valid_email">Enter a valid email address</string>
+    <string name="enter_password">Enter your password</string>
+    <string name="password_length">Use at least 6 characters for your password</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="account_exists">An account already uses this email. Log in, continue with Google, or reset your password.</string>
+    <string name="auth_connection_error">Check your connection and try again.</string>
+    <string name="auth_rate_limit">Too many attempts. Please wait a moment and try again.</string>
+    <string name="registration_failed">Could not create your account. Check your details and try again.</string>
+    <string name="login_failed">Could not log in. Check your email and password, or continue with Google.</string>
+    <string name="reset_sent">If an account uses this email, a password reset link will arrive shortly.</string>
+    <string name="library_open_failed">Could not open your books. Check your connection and try again.</string>
+    <string name="auth_email">Email address</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_confirm_password">Confirm password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="continue_google">Continue with Google</string>
+    <string name="auth_tagline">Your books, in one place.</string>
+    <string name="auth_or">or</string>
+    <string name="add_new_book">Add book</string>
+</resources>

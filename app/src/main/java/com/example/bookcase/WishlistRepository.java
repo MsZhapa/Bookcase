@@ -3,7 +3,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.*;
 import java.util.*;
 public final class WishlistRepository {
-    private final FirebaseFirestore db=BookcaseDatabase.current();
+    private final LibraryStore db;
+    public WishlistRepository() { this(BookcaseDatabase.store()); }
+    public WishlistRepository(LibraryStore db) { this.db=db; }
     public Task<List<WishItem>> get() {
         return db.collection("wishlist").get().continueWith(task -> {
             List<WishItem> items=new ArrayList<>();

@@ -3,7 +3,21 @@ import android.content.Context;
 import android.content.SharedPreferences;
 public final class CubeSettings {
     private CubeSettings() {}
-    private static SharedPreferences prefs(Context c) { return c.getSharedPreferences("cube_layout",Context.MODE_PRIVATE); }
+    private static SharedPreferences prefs(Context c) {
+        com.google.firebase.auth.FirebaseUser user=com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        String uid=user==null?"_signed_out_":user.getUid();
+        SharedPreferences scoped=c.getSharedPreferences("cube_layout_"+uid,Context.MODE_PRIVATE);
+        if(!scoped.getBoolean("legacyCopied",false)) {
+            SharedPreferences.Editor edit=scoped.edit().putBoolean("legacyCopied",true);
+            if(uid.equals(c.getSharedPreferences("bookcase_database",Context.MODE_PRIVATE).getString("ownerUid",""))) {
+                SharedPreferences old=c.getSharedPreferences("cube_layout",Context.MODE_PRIVATE);
+                for(int i=1;i<=8;i++) edit.putString("name"+i,old.getString("name"+i,""));
+                edit.putInt("columns",old.getInt("columns",2));
+            }
+            edit.apply();
+        }
+        return scoped;
+    }
     public static String name(Context c,int cube) {
         if (cube<1 || cube>8) return "Cube "+cube;
         return CubeLayout.label(prefs(c).getString("name"+cube,""),cube);

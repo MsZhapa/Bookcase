@@ -30,7 +30,7 @@ public class EditBookActivity extends BookcaseActivity {
     private Spinner cubeSpinner;
     private Button saveButton;
     private ImageView bookCoverImage;
-    private FirebaseFirestore firestore;
+    private LibraryStore firestore;
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private String bookId;
@@ -45,7 +45,7 @@ public class EditBookActivity extends BookcaseActivity {
         setContentView(R.layout.activity_edit_book);
 
         // Initialize Firestore & Storage
-        firestore = BookcaseDatabase.current();
+        firestore = BookcaseDatabase.store();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 

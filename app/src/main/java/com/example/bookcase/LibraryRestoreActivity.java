@@ -62,6 +62,8 @@ public class LibraryRestoreActivity extends BookcaseActivity {
         final MutableLiveData<State> state=new MutableLiveData<>(new State(false,"Choose a Bookcase full backup to preview. No data changes until you confirm restore.",null,null));
         private final ExecutorService worker=Executors.newSingleThreadExecutor();
         private volatile boolean busy,cleared;
+        private final BackupRepository repository=new BackupRepository();
+        private final String accountUid=com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser()==null?"":com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid();
         public RestoreModel(Application application) { super(application); }
         void preview(Uri uri) {
             if(busy) return; busy=true; state.setValue(new State(true,"Reading and checking backup…",null,null));
@@ -69,7 +71,7 @@ public class LibraryRestoreActivity extends BookcaseActivity {
                 try(InputStream stream=getApplication().getContentResolver().openInputStream(uri)) {
                     if(stream==null) throw new IOException("Cannot open backup");
                     LibraryBackup backup=BackupJson.read(new InputStreamReader(stream,StandardCharsets.UTF_8));
-                    new BackupRepository().load().addOnSuccessListener(current -> { if(cleared) return; worker.execute(() -> {
+                    repository.load().addOnSuccessListener(current -> { if(cleared) return; worker.execute(() -> {
                         try { RestorePlan plan=new RestorePlan(backup,current); busy=false; state.postValue(new State(false,plan.describe(backup),backup,plan)); }
                         catch(Exception error) { fail(error,false); }
                     }); }).addOnFailureListener(error -> fail(error,false));
@@ -79,9 +81,9 @@ public class LibraryRestoreActivity extends BookcaseActivity {
         void restore(boolean settings) {
             State current=state.getValue(); if(busy || current==null || current.plan==null || !current.plan.canRestore()) return;
             busy=true; state.setValue(new State(true,"Restoring missing records… Keep Bookcase open. Interrupted restores can be resumed by selecting the same backup again.",current.backup,current.plan));
-            new BackupRepository().restore(current.backup,current.plan,count -> state.postValue(new State(true,"Added "+count+" missing records…",current.backup,current.plan)))
+            repository.restore(current.backup,current.plan,count -> state.postValue(new State(true,"Added "+count+" missing records…",current.backup,current.plan)))
                     .addOnSuccessListener(count -> {
-                        if(settings) CubeSettings.save(getApplication(),current.backup.cubeNames,current.backup.columns);
+                        if(settings && !cleared && com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser()!=null && accountUid.equals(com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid())) CubeSettings.save(getApplication(),current.backup.cubeNames,current.backup.columns);
                         busy=false; state.setValue(new State(false,"Restore complete. Added "+count+" records; matching records were unchanged. "+(settings ? "Cube names and layout restored." : "Your local cube names and layout were kept."),null,null));
                     }).addOnFailureListener(error -> fail(error,true));
         }

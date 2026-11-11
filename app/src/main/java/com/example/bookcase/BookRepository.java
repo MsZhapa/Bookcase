@@ -7,9 +7,10 @@ import java.util.*;
 
 /** Transitional repository: legacy books stay in place; new writes use normalized collections. */
 public class BookRepository {
-    private final FirebaseFirestore db;
+    private final LibraryStore db;
     public BookRepository() { this(BookcaseDatabase.current()); }
-    public BookRepository(FirebaseFirestore db) { this.db = db; }
+    public BookRepository(FirebaseFirestore db) { this(new LibraryStore(db)); }
+    public BookRepository(LibraryStore db) { this.db=db; }
     public DocumentReference copyRef(String id, boolean normalized) {
         return db.collection(normalized ? "bookCopies" : "books").document(id);
     }

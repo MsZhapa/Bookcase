@@ -1,4 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/actionAddBook" android:title="@string/add_new_book" />
     <item android:id="@+id/actionReadingOverview" android:title="@string/reading_overview" />
     <item android:id="@+id/actionLoanOverview" android:title="@string/loans_overview" />
     <item android:id="@+id/actionExportLibrary" android:title="@string/export_library" />
@@ -6,5 +7,5 @@
     <item android:id="@+id/actionBrowseEditions" android:title="@string/browse_editions" />
     <item android:id="@+id/actionCustomizeCubes" android:title="@string/customize_cubes" />
     <item android:id="@+id/actionWishlist" android:title="@string/wishlist" />
-    <item android:id="@+id/actionAccount" android:title="@string/account_title" />
+    <item android:id="@+id/actionAccount" android:title="@string/sign_out" />
 </menu>

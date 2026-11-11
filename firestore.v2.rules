@@ -1,9 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Single private library. privateConfig/access.ownerEmail is provisioned by
-    // an administrator and is never readable/writable by clients. No first-user
-    // bootstrap or self-assigned roles. Only verified Google identity qualifies.
+    // All library collections live under users/{uid}. No client access to the
+    // previous root inventory, server configuration, or other users' documents.
     // works: id/title/author/description; editions add workId/isbn/imageUrl/pageCount.
     // bookCopies: immutable id/editionId, cube/position, reading/loan state, notes;
     // migrationArchive stores bounded historical source data and is immutable.
@@ -11,11 +10,11 @@ service cloud.firestore {
     // wishlist: immutable id/createdAt, bounded metadata. cubePositions is a
     // monotonic allocation cursor (restores may reserve more than one position).
     // Legacy books is read-only for repository compatibility. All other paths deny.
+    match /users/{uid} {
+    // Every Google or email/password account owns only its UID subtree.
     function isOwner() {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.firebase.sign_in_provider == 'google.com'
-        && request.auth.token.email.lower() == get(/databases/$(database)/documents/privateConfig/access).data.ownerEmail;
+      return request.auth != null && request.auth.uid == uid
+        && request.auth.token.firebase.sign_in_provider in ['google.com','password'];
     }
     function text(d,k,max) { let value=d.get(k,null); return value == null || (value is string && value.size() <= max); }
     function id(value) { return value is string && value.size() > 0 && value.size() <= 1500 && value.matches('[^/]+'); }
@@ -37,7 +36,7 @@ service cloud.firestore {
         && d.keys().hasOnly(['id','workId','isbn','title','author','description','imageUrl','pageCount'])
         && d.id == key && id(d.workId) && metadata(d) && d.pageCount is int
         && d.isbn is string && d.isbn.matches('(|97[89][0-9]{10})')
-        && existsAfter(/databases/$(database)/documents/works/$(d.workId));
+        && existsAfter(/databases/$(database)/documents/users/$(uid)/works/$(d.workId));
     }
     // Original snapshots are opaque portable JSON, never executed or used for
     // authorization. A bounded string keeps validation below expression limits.
@@ -49,7 +48,7 @@ service cloud.firestore {
     function validCopy(d,key,updating) {
       return d.keys().hasAll(['id','editionId','cubeNumber','position','read','progress','lendingStatus'])
         && d.keys().hasOnly(['id','editionId','cubeNumber','position','read','progress','currentPage','readingPageCount','notes','lendingStatus','borrowerName','activeLoanId','lentDate','dueDate','migrationArchive'])
-        && d.id == key && id(d.editionId) && existsAfter(/databases/$(database)/documents/editions/$(d.editionId))
+        && d.id == key && id(d.editionId) && existsAfter(/databases/$(database)/documents/users/$(uid)/editions/$(d.editionId))
         && d.cubeNumber is int && d.cubeNumber >= 1 && d.cubeNumber <= 8
         && d.position is int && d.position >= 0 && d.position < 9223372036854775807
         && d.read is bool && d.progress is int && d.progress >= 0 && d.progress <= 100
@@ -59,8 +58,8 @@ service cloud.firestore {
         && date(d,'lentDate') && date(d,'dueDate') && (updating || validArchive(d,key))
         && ((d.lendingStatus == 'AVAILABLE' && d.get('activeLoanId',null) in [null,''])
           || (d.lendingStatus == 'LENT' && id(d.activeLoanId) && d.borrowerName is string && d.borrowerName.size() > 0
-            && getAfter(/databases/$(database)/documents/lendingRecords/$(d.activeLoanId)).data.bookId == key
-            && getAfter(/databases/$(database)/documents/lendingRecords/$(d.activeLoanId)).data.status == 'ACTIVE'));
+            && getAfter(/databases/$(database)/documents/users/$(uid)/lendingRecords/$(d.activeLoanId)).data.bookId == key
+            && getAfter(/databases/$(database)/documents/users/$(uid)/lendingRecords/$(d.activeLoanId)).data.status == 'ACTIVE'));
     }
     function validLoan(d,key) {
       return d.keys().hasAll(['id','bookId','borrowerName','lentDate','status'])
@@ -119,22 +118,8 @@ service cloud.firestore {
       allow create: if isOwner() && validCounter(request.resource.data,key);
       allow update: if isOwner() && validCounter(request.resource.data,key) && request.resource.data.lastPosition >= resource.data.lastPosition;
     }
-    // Administrator-issued readiness receipt; clients cannot mark a migration ready.
-    function validReadiness(d) {
-      return d.keys().hasAll(['schemaVersion','migrationVerified','initialCopyCount','verifiedAt','sourceFingerprint','targetFingerprint','activated','activatedAt'])
-        && d.keys().hasOnly(['schemaVersion','migrationVerified','initialCopyCount','verifiedAt','sourceFingerprint','targetFingerprint','activated','activatedAt'])
-        && d.schemaVersion == 2 && d.migrationVerified == true && d.initialCopyCount is int && d.initialCopyCount >= 0 && d.initialCopyCount <= 10000
-        && d.verifiedAt is timestamp && d.sourceFingerprint is string && d.sourceFingerprint.matches('[0-9a-f]{64}')
-        && d.targetFingerprint is string && d.targetFingerprint.matches('[0-9a-f]{64}') && d.activated == true && d.activatedAt == request.time;
-    }
-    match /libraryStatus/{key} {
-      allow read: if isOwner();
-      // The owner can acknowledge first cutover, but cannot change verification or ownership.
-      allow update: if key == 'current' && isOwner() && validReadiness(request.resource.data)
-        && resource.data.activated == false
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activated','activatedAt']);
-    }
     match /books/{key} { allow read: if isOwner(); }
+    }
     match /{document=**} { allow read, write: if false; }
   }
 }
